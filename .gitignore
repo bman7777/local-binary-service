@@ -7,3 +7,6 @@ __pycache__/
 # until I figure out what to do with static files, I wil ignore that too
 static/
 
+.envrc
+
+venv/
