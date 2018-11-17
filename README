@@ -1,0 +1,15 @@
+
+Source lives on server.  To work on the server code locally, do:
+mkdir -p /home/brian/Documents/local-binary-sshmount
+sshfs bman7777@ssh.pythonanywhere.com:/home/bman7777/local-binary /home/brian/Documents/local-binary-sshmount
+
+Then make git work, by:
+cd /home/brian/Documents/local-binary-sshmount
+git status
+(if not on master) git checkout master
+git checkout -b blm/lb/branch-name
+
+git commit -a
+git push origin blm/lb/branch-name
+
+For some reason atom still doesn't know how to view diffed changes.
