@@ -1,0 +1,8 @@
+flask
+lxml
+mysqlclient
+nltk
+numpy
+pytest
+requests
+pudb
