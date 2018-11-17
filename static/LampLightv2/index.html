@@ -1,0 +1,1626 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville|Lato">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <script type="text/javascript" src="anime.min.js"></script>
+        <script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="Chart.min.js"></script>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0' />
+        <style>
+                li {
+                    font-family: 'Lato', sans-serif;
+                }
+                #top_content {
+                    height: 23%;
+                }
+                #verse_container {
+                    margin: auto;
+                    width: 67%;
+                    min-width: 600px;
+                    max-width: 1000px;
+                    display: flex;
+                }
+                #search_container {
+                    margin: auto;
+                    margin-top: 20px;
+                    width: 67%;
+                    min-width: 600px;
+                    max-width: 1000px;
+                    border-style: solid;
+                    border-color: lightgrey;
+                    border-width: 3px;
+                    border-radius: 35px;
+                    display: flex;
+                    justify-content: space-between;
+                }
+                #verse_loc {
+                    text-align: right;
+                    margin-right: 17px;
+                    margin-top: 7px;
+                    margin-bottom: 7px;
+                    padding-right: 10px;
+                    display: inline-flex;
+                    border-width: 0 3px 0 0;
+                    border-style: solid;
+                    border-color: lightgrey;
+                    justify-content: center;
+                    flex-direction: column;
+                    vertical-align: middle;
+                }
+                .top_line_detail {
+                    font-family: 'Lato', sans-serif;
+                    font-weight: 900;
+                    font-size: large;
+                    font-variant-caps: all-petite-caps;
+                    color: darkred;
+                    width: max-content;
+                    margin-left: auto;
+                }
+                .bottom_line_detail {
+                    font-family: 'Lato', sans-serif;
+                    font-weight: 900;
+                    font-size: xx-large;
+                }
+                #main_verse {
+                    text-align: left;
+                    font-size: xx-large;
+                    padding-right: 20px;
+                    font-family: 'Libre Baskerville', serif;
+                    min-width: 460px;
+                    justify-content: center;
+                    vertical-align: middle;
+                }
+                #question {
+                    resize: none;
+                    outline: none;
+                    border: none;
+                    background: none;
+                    width: 85%;
+                    height: 32px;
+                    font-size: large;
+                    font-family: 'Lato', sans-serif;
+                    display: inline-flex;
+                    margin: auto;
+                    color: grey;
+                }
+                *::-webkit-search-cancel-button {
+                    -webkit-appearance: none;
+                }
+                #search_icon_holder {
+                    display: inline-flex;
+                    padding-top: 3px;
+                    padding-bottom: 3px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    cursor: pointer;
+                    cursor: hand;
+                    border-radius: 30px;
+                }
+                #search_btn {
+                    font-size:30px;
+                    color:lightgrey;
+                }
+                .fa-circle-thinner {
+                    box-sizing: border-box;
+                    display: block;
+                    width: 2em;
+                    height: 2em;
+                    padding-top: 0.4em;
+                    text-align: center;
+                    border-radius: 100%;
+                    border: 5px solid;
+                    border-color: rgba(211,211,211, 0);
+                }
+                #options {
+                    height: 100px;
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
+                    position: relative;
+                    margin-bottom: 10px;
+                }
+                .chart_item {
+                    width: 260px;
+                    height: 100%;
+                }
+                .mini_chart_item {
+                    margin-left: auto;
+                    margin-right: 20px;
+                    transform: scale(0.7, 0.7);
+                }
+                #error {
+                    margin: auto;
+                    margin-top: 10px;
+                    margin-bottom: 10px;
+                    width: 15%;
+                    height: 30px;
+                    font-family: Lato;
+                    font-style: normal;
+                    font-weight: bold;
+                    font-size: large;
+                    color: darkred;
+                    border: 1px solid #E3DEDE;
+                    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+                    text-align: center;
+                    border-radius: 20px;
+                    font-variant-caps: all-petite-caps;
+                    position: absolute;
+                    top: 33%;
+                    background-color: white;
+                    display: none;
+                    opacity: 0;
+                }
+                #sel_list {
+                    width: 67%;
+                    min-width: 600px;
+                    max-width: 1000px;
+                    height: auto;
+                    margin: auto;
+                }
+                .search_res {
+                    height: fit-content;
+                    min-height: 77px;
+                    background: #FFFFFF;
+                    border: 1px solid #E3DEDE;
+                    box-sizing: border-box;
+                    margin-bottom: 8px;
+                    display: flex;
+                    cursor: pointer;
+                    cursor: hand;
+                }
+                .search_res:hover {
+                    background: #F8F8F8;
+                    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+                }
+                .detail {
+                    text-align: right;
+                    margin-top: 10px;
+                    margin-bottom: 10px;
+                    margin-left: 10px;
+                    padding-right: 10px;
+                    font-family: 'Lato', sans-serif;
+                    border-width: 0 3px 0 0;
+                    border-style: solid;
+                    border-color: lightgrey;
+                    justify-content: center;
+                    flex-direction: column;
+                    vertical-align: middle;
+                    display: inline-flex;
+                    min-width: 100px;
+                }
+                .detail-top {
+                    font-size: large;
+                    font-variant-caps: all-petite-caps;
+                    font-weight: 400;
+                }
+                .detail-bottom {
+                    font-size: x-large;
+                    font-weight: 900;
+                }
+                .detail-cat-bottom {
+                    font-size: small;
+                    color: grey;
+                    font-style: italic;
+                }
+                .msg {
+                    font-family: 'Lato', sans-serif;
+                    justify-content: center;
+                    flex-direction: column;
+                    vertical-align: middle;
+                    display: inline-flex;
+                    margin-left: 10px;
+                    padding: 5px;
+                }
+                .msg-top {
+                    font-size: large;
+                    font-weight: 900;
+                }
+                .msg-top-desc {
+                    margin-left: 10px;
+                    color: darkred;
+                    font-size: medium;
+                }
+                .msg-bottom {
+                    font-style: italic;
+                }
+                .clicked-word {
+                    display: inline-flex;
+                    color: white;
+                    font-size: 85px;
+                    font-weight: bold;
+                    font-family: Helvetica;
+                    text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
+                }
+                .clicked-word:hover {
+                    cursor: pointer;
+                    cursor: hand;
+                }
+                .kw {
+                    display: inline-flex;
+                    color: darkgrey;
+                }
+                .kw:hover {
+                    cursor: pointer;
+                    cursor: hand;
+                    font-style: italic;
+                }
+                #word-info {
+                    position: absolute;
+                    z-index: 2;
+                    pointer-events: none;
+                    display: none;
+                }
+                #dot {
+                    width: 10px;
+                    height: 10px;
+                    border: darkred;
+                    border-style: solid;
+                    border-radius: 10px;
+                    background-color: darkred;
+                }
+                #details {
+                    position: absolute;
+                    top: 20;
+                    left: 18;
+                    max-width: 300px;
+                    font-family: Lato, sans-serif;
+                    font-variant: all-small-caps;
+                }
+                #line-container {
+                    position: relative;
+                    bottom: -10;
+                    left: 8;
+                    height: 200px;
+                }
+                #pointer-line {}
+                .line {
+                    stroke: darkred;
+                    stroke-width:3;
+                }
+                #breadcrumb {
+                    margin: auto;
+                    z-index: 1;
+                    height: 52px;
+                    margin-left: 10px;
+                    display: flex;
+                    overflow: hidden;
+                }
+                .hint-container {
+                    display: flex;
+                }
+                .hint {
+                    padding-left: 15px;
+                    padding-right: 25px;
+                    padding-bottom: 10px;
+                    z-index: 2;
+                    border-radius: 30px 30px 30px 30px;
+                    border: lightgrey 2px solid;
+                    background-color: rgb(255, 250, 243);
+                    display: flex;
+                }
+                .hint:hover {
+                    background: linear-gradient(to right,rgb(220, 190, 190), rgb(255, 245, 245));
+                    border: darkred 2px solid;
+                    cursor: pointer;
+                    cursor: hand;
+                }
+                .hint:hover .hint_title {
+                    color: darkred;
+                }
+                .hint:hover .hint_desc {
+                    color: darkred;
+                }
+                .hint:hover .hint-delete {
+                    color: darkred;
+                }
+                .hint_title {
+                    font-size: large;
+                    font-variant-caps: all-petite-caps;
+                    color: darkgrey;font-variant
+                    font-family: 'Lato', sans-serif;
+                    text-align: center;
+                    margin-left: 12px;
+                }
+                .hint_desc {
+                    font-size: medium;
+                    color: black;
+                    font-family: 'Libre Baskerville', serif;
+                    text-align: left;
+                    font-style: italic;
+                    padding-bottom: 5px;
+                    margin-left: 12px;
+                    white-space: nowrap;
+                }
+                .side-hint {
+                    border-radius: 0px 30px 30px 0px;
+                    border: lightgrey 2px solid;
+                    background-color: rgb(255, 250, 243);
+                    margin-right: 7px;
+                    padding-right: 15px;
+                    padding-left: 15px;
+                    position: relative;
+                    left: -22px;
+                    border-left: rgba(0,0,0,0);
+                    z-index: 1;
+                    display: flex;
+                }
+                .side-hint:hover {
+                    background: linear-gradient(to right,rgb(220, 190, 190), rgb(255, 245, 245));
+                    border: darkred 2px solid;
+                    box-shadow: darkgrey -3px 1px 6px;
+                    cursor: pointer;
+                    cursor: hand;
+                }
+                .side-hint:hover .hint_title {
+                    color: darkred;
+                }
+                .side-hint:hover .hint_desc {
+                    color: darkred;
+                }
+                .side-hint:hover .hint-delete {
+                    color: darkred;
+                }
+                .hint-delete {
+                    margin-top: 15px;
+                    color: rgba(194, 150, 150, 0.85);
+                }
+                .stat-category {
+                    text-align: center;
+                    font-family: Lato;
+                    color: darkred;
+                    font-size: 20px;
+                    font-variant: all-small-caps;
+                }
+                .stat-border {
+                    margin: auto;
+                    border: rgba(139, 0, 0, 0.3) 10px solid;
+                    border-radius: 40px;
+                    height: 20px;
+                    width: 20px;
+                    padding: 15px;
+                    text-align: center;
+                    font-family: Lato;
+                    align-items: center;
+                }
+                .stat-value {
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 80%;
+                    height: 100%;
+                    display: inline-flex;
+                    color: darkred;
+                    font-variant-caps: all-small-caps;
+                    font-weight: 900;
+                    width: 100%;
+                    border: darkred 2px solid;
+                    border-radius: 30px;
+                    padding: 17px;
+                    position: relative;
+                    left: -19;
+                    top: -19;
+                }
+
+                .mini-stat-value {
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 170%;
+                    height: 100%;
+                    display: inline-flex;
+                    color: darkred;
+                    font-variant-caps: all-small-caps;
+                    font-weight: 900;
+                    width: 100%;
+                    padding: 17px;
+                    position: relative;
+                    left: -17;
+                    top: -20;
+                }
+
+                .concept-row {
+                    display: flex;
+                    justify-content: center;
+                    font-variant: initial;
+                    font-family: 'Libre Baskerville', serif;
+                    font-size: 15;
+                }
+
+                .left-concept {
+                    border: solid lightgrey;
+                    border-radius: 19px 0px 0px 19px;
+                    text-align: center;
+                    padding: 3px 5px 3px 12px;
+                    margin-top: 7px;
+                    color: black;
+                    background-color: rgba(250, 240, 230, 0.3);
+                    pointer-events: auto;
+                    border-width: 2px 1px 2px 2px;
+                    font-size: 17;
+                }
+
+                .left-concept:hover {
+                    background: linear-gradient(to right,rgba(220, 190, 190, 0.33), rgba(255, 245, 245, 0.44));
+                    border: darkred 2px solid;
+                    box-shadow: darkgrey 3px 1px 3px;
+                    color: darkred;
+                    cursor: pointer;
+                    cursor: hand;
+                    font-style: italic;
+                }
+
+                .right-concept {
+                    border: solid lightgrey;
+                    border-radius: 0px 19px 19px 0px;
+                    text-align: center;
+                    padding: 4px 12px 5px 8px;
+                    margin-top: 7px;
+                    color: black;
+                    background-color: rgba(250, 240, 230, 0.3);
+                    pointer-events: auto;
+                    border-width: 2px 2px 2px 1px;
+                }
+
+                .right-concept:hover {
+                    background: linear-gradient(to right,rgba(220, 190, 190, 0.33), rgba(255, 245, 245, 0.44));
+                    border: darkred 2px solid;
+                    box-shadow: darkgrey 3px 1px 3px;
+                    color: darkred;
+                    cursor: pointer;
+                    cursor: hand;
+                    font-style: italic;
+                }
+
+                .fa-pagelines {
+                    margin-right: 5px;
+                    color: rgba(194, 150, 150, 0.85);
+                }
+
+                .fa-globe-americas {
+                    margin-right: 5px;
+                    color: rgba(194, 150, 150, 0.85);
+                }
+
+                .left-concept:hover .fa-pagelines {
+                    color: darkred;
+                }
+
+                .right-concept:hover .fa-globe-americas {
+                    color: darkred;
+                }
+
+                .add-concept-icon {
+                    font-size: 25;
+                    line-height: 1.8;
+                    padding-left: 10px;
+                    color: darkred;
+                }
+
+                .hint-scroll-arrow {
+                    margin-top: auto;
+                    margin-bottom: auto;
+                }
+
+                .hint-arrow {
+                    font-size: 50;
+                    color: grey;
+                    padding-left: 7px;
+                    padding-right: 7px;
+                }
+
+                .hint-arrow:hover {
+                    font-size: 54;
+                    color: darkred;
+                }
+
+                #context_menu {
+                    position: relative;
+                    top: 185px;
+                    z-index: 1;
+                    width: 300px;
+                    margin-top: -196px;
+                    transform-origin: top;
+                }
+
+                .context_menu_item {
+                    text-align: center;
+                    height: 70px;
+                    background: linear-gradient(rgb(220, 215, 207),
+                                                rgb(255, 250, 243));
+                    display: flex;
+                    box-shadow: darkgrey -3px 3px 15px;
+                    border: 1px solid darkgrey;
+                }
+
+                .context_menu_item:hover {
+                    background: linear-gradient(to top,rgb(220, 190, 190), rgb(255, 245, 245));
+                    border: darkred 2px solid;
+                    cursor: pointer;
+                    cursor: hand;
+                }
+
+                .cm_text_holder {
+                    margin: auto;
+                }
+
+                .cm_item_title {
+                    color: darkgrey;
+                    font-variant-caps: all-petite-caps;
+                    font-size: 18;
+                }
+
+                .cm_icon {
+                    position: absolute;
+                    font-size: 38;
+                    color: rgba(194, 150, 150, 0.85);
+                    width: 50px;
+                    height: 53px;
+                    padding-top: 15px;
+                    background-color: rgba(255, 250, 243, 0.7);
+                }
+
+        </style>
+
+    </head>
+    <body>
+        <div id="word-info">
+            <div id="details"></div>
+            <svg id="line-container">
+              <line x1="0" y1="0" x2="0" y2="200" class="line" id="pointer-line"></line>
+              <line x1="0" y1="0" x2="40" y2="0" class="line" ></line>
+            </svg>
+            <div id="dot"></div>
+        </div>
+        <div id="top_content"></div>
+        <div id="verse_container">
+            <div id="verse_loc"><div id="book_name" class="top_line_detail"></div><div id="chapter_verse" class="bottom_line_detail"></div></div>
+            <div id="main_verse"></div>
+        </div>
+        <div id="search_container">
+            <div id="hint-arr-left" class="hint-scroll-arrow"><i class="fas fa-chevron-left hint-arrow"></i></div>
+            <div id="breadcrumb"></div>
+            <input type="search" id="question" placeholder="You have questions, the Bible has answers..." autofocus="" maxlength="90" />
+            <div id="hint-arr-right" class="hint-scroll-arrow"><i class="fas fa-chevron-right hint-arrow"></i></div>
+            <div id="search_icon_holder">
+                <i class="fa fa-circle-thinner fa-search" id="search_btn"></i>
+            </div>
+        </div>
+        <div id="context_menu" style="visibility: hidden;">
+            <div id="cm_native" class='context_menu_item'
+                 style="transform: skew(7deg);">
+                <div class='cm_text_holder'>
+                    <div class='cm_item_title'>Native Form</div>
+                    <div class='test_desc3'>hebrew, greek</div>
+                </div>
+                <i class="fab fa-pagelines cm_icon"></i>
+            </div>
+            <div id="cm_synonym" class='context_menu_item'
+                 style="transform: skew(-7deg);">
+                <div class='cm_text_holder'>
+                    <div class='cm_item_title'>Synonyms</div>
+                    <div class='test_desc3'>Jesus, God, Lord</div>
+                </div>
+                <i class="fab fa-connectdevelop cm_icon"></i>
+            </div>
+            <div id="cm_similar" class='context_menu_item'
+                 style="transform: skew(7deg);">
+                <div class='cm_text_holder'>
+                    <div class='cm_item_title'>Similar Forms</div>
+                    <div class='test_desc3'>walked, walking</div>
+                </div>
+                <i class="far fa-clone cm_icon"></i>
+            </div>
+        </div>
+        <div id="options">
+            <div id="error">No Results</div>
+            <canvas id="chart1" width="260px" height="96px"></canvas>
+            <div id="chart2" class="chart_item"></div>
+            <div id="chart3" class="chart_item"></div>
+        </div>
+        <div id="sel_list"></div>
+        <div id="footer" style="height:100px"></div>
+
+        <script>
+        (function() {
+            searcher = {}
+
+            $( "#search_btn" ).hover(
+                function() {
+                    var cssProperties = anime({
+                        targets: ['.fa-circle-thinner'],
+                        borderColor: 'rgba(211,211,211, 1)',
+                        borderWidth: '2px',
+                        duration: 200,
+                        easing: 'linear'
+                    });
+                }, function() {
+                    var cssProperties = anime({
+                        targets: ['.fa-circle-thinner'],
+                        borderColor: 'rgba(211,211,211, 0)',
+                        borderWidth: '5px',
+                        duration: 100,
+                        easing: 'linear'
+                    });
+                }
+            );
+
+            $( "#search_icon_holder" ).off('click').click(
+                function() {
+                    var basicTimeline = anime.timeline();
+                    basicTimeline
+                        .add({
+                            targets: ['.fa-circle-thinner'],
+                            backgroundColor: 'rgba(195, 92, 92, 0.3)',
+                            color: 'rgb(255, 255, 255)',
+                            duration: 100,
+                            easing: 'linear'
+                        })
+                        .add({
+                            targets: ['.fa-circle-thinner'],
+                            backgroundColor: 'rgb(255, 255, 255)',
+                            color: 'rgb(211, 211, 211)',
+                            duration: 50,
+                            easing: 'linear'
+                        })
+
+
+                    if(hint_list.length <= 0)
+                    {
+                        var q = $( "#question" ).val().trim();
+                        if(q != "")
+                        {
+                            doSearch(q);
+                	    }
+                        else
+                        {
+                            enableTextSearch();
+                        }
+                    }
+                    else
+                    {
+                        // if we are adding a text search and we cancel,
+                        // we should re-show the breadcrumb
+                        if($( "#breadcrumb" ).is(":visible"))
+                        {
+                            enableTextSearch();
+                        }
+                        else
+                        {
+                            enableHintView();
+                        }
+                    }
+                }
+            );
+
+            function setCaretPosition(caretPos)
+            {
+                var elem = document.getElementById('question');
+                var range;
+                if (elem.createTextRange)
+                {
+                    range = elem.createTextRange();
+                    range.move('character', caretPos);
+                    range.select();
+                }
+                else
+                {
+                    elem.focus();
+                    if (elem.selectionStart !== undefined)
+                    {
+                        elem.setSelectionRange(caretPos, caretPos);
+                    }
+                }
+            }
+
+            function resetHints()
+            {
+                hint_list = []
+                enableTextSearch();
+            }
+
+            function enableTextSearch()
+            {
+                if(hint_list.length <= 0)
+                {
+                    $( "#search_btn" ).removeClass('fas')
+                                      .removeClass('fa-plus-circle')
+                                      .addClass('fa').addClass('fa-search');
+                    $( "#question" ).attr("placeholder", "You have questions, the Bible has answers...");
+                }
+                else
+                {
+                    $( "#search_btn" ).removeClass('fas')
+                                      .removeClass('fa-plus-circle')
+                                      .addClass('fas').addClass('fa-times-circle');
+                    $( "#question" ).attr("placeholder", "Add to search...");
+                }
+
+                $( "#breadcrumb" ).hide();
+                $( "#hint-scroll-arrow" ).hide();
+                $( "#question" ).val("").css("color", "grey").show().focus();
+                setCaretPosition(0);
+            }
+
+            function enableHintView()
+            {
+                $( "#question" ).hide().val("");
+                $( "#search_btn" ).removeClass('fa').removeClass('fa-search')
+                                  .removeClass('fas').removeClass('fa-times-circle')
+                                  .addClass('fas').addClass('fa-plus-circle');
+                $( "#breadcrumb" ).show();
+
+                searcher.refreshHintArrowVisibility();
+            }
+
+            searcher.refreshHintArrowVisibility = function()
+            {
+                if(searcher.hintUpdateTimerId != undefined)
+                {
+                    clearInterval(searcher.hintUpdateTimerId);
+                    searcher.hintUpdateTimerId = undefined;
+                }
+
+                var isShown = false;
+                if($( "#breadcrumb" ).is(":visible"))
+                {
+                    // check if arrows are needed
+                    if(($("#search_container").width() -
+                        $("#search_icon_holder").width()) <
+                        ((hint_list.length * 200) + 27))
+                    {
+                        isShown = true;
+                    }
+                }
+
+                if(isShown)
+                {
+                    $("#hint-arr-left").show();
+                    $("#hint-arr-right").show();
+                }
+                else
+                {
+                    $("#hint-arr-left").hide();
+                    $("#hint-arr-right").hide();
+                    $( "#breadcrumb" ).scrollLeft(0);
+                }
+            }
+
+            function addHint(title, desc, meta_search, isEnglish)
+            {
+                if(isEnglish)
+                {
+                    hint_list.push({english: meta_search, native: undefined});
+                    $( "#breadcrumb" ).append(
+                        "<div class='hint-container'><div class='hint'>"+
+                        "<i class='far fa-times-circle hint-delete'></i>"+
+                        "<div class='hint_text'>"+
+                        "<div class='hint_title'>"+title+"</div>"+
+                        "<div class='hint_desc'>"+desc+"</div></div></div>"+
+                        "<div class='side-hint'><i class='"+
+                        "add-concept-icon fas fa-plus-circle'>"+
+                        "</i></div></div>");
+                }
+                else
+                {
+                    hint_list.push({english: undefined, native: meta_search});
+                    $( "#breadcrumb" ).append(
+                        "<div class='hint-container'><div class='hint'>"+
+                        "<i class='add-concept-icon fas fa-plus-circle'>"+
+                        "</i></div>"+
+                        "<div class='side-hint'>"+
+                        "<div class='hint_text'>"+
+                        "<div class='hint_title'>"+title+"</div>"+
+                        "<div class='hint_desc'>"+desc+"</div></div>"+
+                        "<i class='far fa-times-circle hint-delete'></i></div></div>");
+                }
+
+                enableHintView();
+
+                $( ".hint" ).off('click').click(
+                    function(evt)
+                    {
+                        var idx = $( ".hint" ).index(this);
+                        if(hint_list[idx].english == undefined)
+                        {
+                            pending_hint_elem = $(this);
+                            pending_hint = hint_list[idx];
+                            $.ajax({
+                                url: "../baseless-search?concord="+
+                                    encodeURIComponent(
+                                        hint_list[idx].native.concords[0])
+                            }).done(function(out, textStatus)
+                            {
+                                onBaselessSuccess(out, textStatus,
+                                                  "english", hint_list[idx]);
+
+                            }).fail(function()
+                            {
+                                // todo
+                            });
+                        }
+                        else if(hint_list[idx].native != undefined)
+                        {
+                            hint_list[idx].english = undefined;
+                            $(this).html("<i class='"+
+                                "add-concept-icon fas fa-plus-circle'>"+
+                                "</i>");
+                            $.ajax({
+                                    url:"../search",
+                                    type:"POST",
+                                    data:JSON.stringify(hint_list),
+                                    contentType:"application/json; charset=utf-8",
+                                }).done(function(out, textStatus)
+                                {
+                                    if(out)
+                                    {
+                                        updateResultList(
+                                            out.data,
+                                            out.highlight_verse,
+                                            out.stats);
+                                    }
+                                    else
+                                    {
+                                        updateResultList([]);
+                                    }
+                                });
+                        }
+                        else
+                        {
+                            removeHintByIndex(idx);
+                        }
+                    }
+                );
+
+                $( ".side-hint" ).off('click').click(
+                    function(evt)
+                    {
+                        var idx = $( ".side-hint" ).index(this);
+                        if(hint_list[idx].native == undefined)
+                        {
+                            evt.preventDefault();
+                            if($('#context_menu')[0].style.visibility == 'hidden')
+                            {
+                                $(this).html("<i class='"+
+                                    "add-concept-icon fas fa-times-circle'></i>");
+
+                                current_hint_menu = idx;
+                                updateContextMenuLoc();
+
+                                var menu_ref = $('#context_menu')[0];
+                                menu_ref.style.transform = 'scaleY(.1)';
+                                menu_ref.style.opacity = '0.1';
+                                menu_ref.style.visibility = '';
+                                var cssProperties = anime({
+                                    targets: [menu_ref],
+                                    scaleY: '1',
+                                    opacity: '1',
+                                    duration: 200,
+                                    easing: 'linear'
+                                });
+                            }
+                            else
+                            {
+                                $(this).html("<i class='"+
+                                    "add-concept-icon fas fa-plus-circle'></i>");
+
+                                current_hint_menu = undefined;
+                                var menu_ref = $('#context_menu')[0];
+                                var cssProperties = anime({
+                                    targets: ['#context_menu'],
+                                    duration: 100,
+                                    scaleY: '.1',
+                                    opacity: '0.1',
+                                    easing: 'linear',
+                                    complete: function(anim) {
+                                        menu_ref.style.visibility = 'hidden';
+                                    }
+                                });
+                            }
+                        }
+                        else if(hint_list[idx].english != undefined)
+                        {
+                            hint_list[idx].native = undefined;
+                            $(this).html("<i class='"+
+                                "add-concept-icon fas fa-plus-circle'></i>");
+
+                            if(hint_list.length == 1)
+                            {
+                                current_hint_menu = idx;
+                                addNativeSelection(current_hint_menu);
+                            }
+                            else
+                            {
+                                $.ajax({
+                                    url:"../search",
+                                    type:"POST",
+                                    data:JSON.stringify(hint_list),
+                                    contentType:"application/json; charset=utf-8",
+                                }).done(function(out, textStatus)
+                                {
+                                    if(out)
+                                    {
+                                        updateResultList(
+                                            out.data,
+                                            out.highlight_verse,
+                                            out.stats);
+                                    }
+                                    else
+                                    {
+                                        updateResultList([]);
+                                    }
+                                });
+                            }
+                        }
+                        else
+                        {
+                            removeHintByIndex(idx);
+                        }
+                    }
+                );
+            }
+
+            $( ".context_menu_item" ).off('click').click(
+                function(evt)
+                {
+                    $( ".side-hint" ).eq(
+                        current_hint_menu).html("<i class='"+
+                                                "add-concept-icon fas "+
+                                                "fa-plus-circle'></i>");
+
+                    var menu_idx = $( ".context_menu_item" ).index(this);
+                    $('#context_menu')[0].style.visibility = 'hidden'
+
+                    if(menu_idx == 0) //native
+                    {
+                        addNativeSelection(current_hint_menu);
+                    }
+                    else if(menu_idx == 1) //synonyms
+                    {
+                        // todo
+                    }
+                    else if(menu_idx == 2) //similar forms
+                    {
+                        // todo
+                    }
+                }
+            );
+
+            function removeHintByIndex(idx)
+            {
+                $( "#word-info" ).hide();
+                $( ".hint-container" ).eq(idx).remove();
+                hint_list.splice(idx, 1);
+                searcher.refreshHintArrowVisibility();
+                if(hint_list.length <= 0)
+                {
+                    updateResultList([]);
+                    enableTextSearch();
+                }
+                else
+                {
+                    // re-run the search to update the list of items shown
+                    $.ajax({
+                        url:"../search",
+                        type:"POST",
+                        data:JSON.stringify(hint_list),
+                        contentType:"application/json; charset=utf-8",
+                    }).done(function(out, textStatus)
+                    {
+                        if(out)
+                        {
+                            updateResultList(
+                                out.data,
+                                out.highlight_verse,
+                                out.stats);
+                        }
+                        else
+                        {
+                            updateResultList([]);
+                        }
+                    });
+                }
+            }
+
+            function addNativeSelection(idx)
+            {
+                pending_hint_elem = $( ".side-hint" ).eq(idx);
+                pending_hint = hint_list[idx];
+                $.ajax({
+                    url: "../baseless-search?text="+
+                        encodeURIComponent(
+                            hint_list[idx].english.words[0])
+                }).done(function(out, textStatus)
+                {
+                    onBaselessSuccess(out, textStatus,
+                                      "native", hint_list[idx]);
+
+                }).fail(function()
+                {
+                    // todo
+                });
+            }
+
+            function addToSearch(title, desc, meta_search, isEnglish)
+            {
+                addHint(title, desc, meta_search, isEnglish);
+
+                // refresh search
+                $.ajax({
+                    url:"../search",
+                    type:"POST",
+                    data:JSON.stringify(hint_list),
+                    contentType:"application/json; charset=utf-8",
+                }).done(function(out, textStatus)
+                {
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+
+                    if(out)
+                    {
+                        $( "#word-info" ).hide();
+                        updateResultList(out.data,
+                                         out.highlight_verse,
+                                         out.stats);
+                    }
+                    else
+                    {
+                        updateResultList([]);
+                    }
+                });
+            }
+
+            function addKeyWordClick()
+            {
+                $( ".kw" ).off('click').on('click',
+                    function(event)
+                    {
+                        var needs_hide =
+                            $( this )[0].classList.contains('clicked-word');
+                        $( this ).siblings().removeClass('clicked-word')
+                                            .addClass('kw');
+                        $( this ).toggleClass('kw clicked-word');
+
+                        if(needs_hide)
+                        {
+                            $( "#word-info" ).css(getLocatorPos()).hide();
+                        }
+                        else
+                        {
+                            kw_id = $( this ).attr('id').split("concord-")[1]
+                            if(highlight_concords && highlight_concords[kw_id])
+                            {
+                                keyword_info = highlight_concords[kw_id];
+                                $( "#details" ).html(
+                                    keyword_info["description"]+
+                                    "<div class='concept-row'>"+
+                                    "<div class='left-concept'>"+
+                                    "<i class='fab fa-pagelines'></i>"+
+                                    keyword_info["native"]+
+                                    "</div><div class='right-concept'>"+
+                                    "<i class='fas fa-globe-americas'></i>"+
+                                    keyword_info["word"]+"</div></div>")
+
+                                $( ".left-concept" ).on('click',
+                                    function(event)
+                                    {
+                                        addToSearch("Hebrew",
+                                            highlight_concords[kw_id]["native"],
+                                            {concords: [parseInt(kw_id)]}, false);
+                                    });
+
+                                $( ".right-concept" ).on('click',
+                                    function(event)
+                                    {
+                                        english = highlight_concords[kw_id]["word"];
+                                        addToSearch("English",
+                                            english, {words: [english]}, true);
+                                    });
+                            }
+                            else
+                            {
+                                $( "#details" ).html("")
+                            }
+
+                            $( "#word-info" ).css(getLocatorPos()).show();
+                        }
+                    }
+                );
+            }
+
+            function updateResultList(items, highlight_verse, stats)
+            {
+                $( "#sel_list" ).html("");
+
+                var hasSetMainVerse = false;
+                if(highlight_verse != undefined)
+                {
+                    info = highlight_verse
+                    hasSetMainVerse = true;
+                    $( "#book_name" ).html(info.book);
+                    $( "#chapter_verse" ).html(info.chapter+
+                                           ":"+info.verse);
+	                $( "#main_verse" ).html(info.text);
+
+	                highlight_concords = info.concord_info;
+                }
+                result_list = items;
+                for (var i = 0, len = result_list.length; i < len; i++)
+                {
+                    var info = result_list[i]
+                    if(info.type == "category")
+                    {
+                        if(info.description == undefined)
+                        {
+                            info.description = "";
+                        }
+
+                        if(info.native == undefined)
+                        {
+                            info.native = "";
+                        }
+
+                        $( "#sel_list" ).append(
+                            "<div class='search_res'>"+
+                            "<div class='detail'>"+
+                            "<div class='detail-top'>"+info.lang+"</div>"+
+                            "<div class='detail-cat-bottom'>"+
+                            info.common_book+"</div>"+
+                            "</div><div class='msg'><div class='msg-top'>"+
+                            info.native+"<span class='msg-top-desc'>"+
+                            info.english+"</span></div>"+
+                            "<div class='msg-bottom'>"+info.description+
+                            "</div></div><div class='mini_chart_item'>"+
+                            "<div class='stat-category'>Verses:</div>"+
+                            "<div class='stat-border'>"+
+                            "<div class='mini-stat-value'>"+
+                            info.num_verse+
+                            "</div></div></div></div>");
+                    }
+                    else
+                    {
+                        if(!hasSetMainVerse)
+                        {
+                            hasSetMainVerse = true;
+                            $( "#book_name" ).html(info.book);
+                            $( "#chapter_verse" ).html(info.chapter+
+                                                   ":"+info.verse);
+        	                $( "#main_verse" ).html(info.text);
+                        }
+
+                        $( "#sel_list" ).append(
+                            "<div class='search_res'>"+
+                            "<div class='detail'>"+
+                            "<div class='detail-top'>"+info.book+"</div>"+
+                            "<div class='detail-bottom'>"+info.chapter+
+                            ":"+info.verse+"</div>"+
+                            "</div><div class='msg'><div class='msg-top'></div>"+
+                            "<div class='msg-bottom'>"+info.text+
+                            "</div></div></div>");
+                    }
+                }
+
+                $( ".search_res" ).click(function()
+                {
+                    searchResultClick(this);
+                });
+
+                if(result_list.length <= 0)
+                {
+                    drawChart([]);
+                }
+                else
+                {
+                    drawChart(stats);
+                }
+
+                addKeyWordClick();
+            }
+
+            function searchResultClick(item)
+            {
+                var idx = $( ".search_res" ).index(item);
+                var info = result_list[idx];
+                if(info.type == "category")
+                {
+                    result_list = [];
+                    if(pending_hint != undefined)
+                    {
+                        if(info.lang == "english")
+                        {
+                            pending_hint.english = {words: info.words};
+                            pending_hint_elem.html(
+                                "<i class='far fa-times-circle hint-delete'></i>"+
+                                "<div class='hint_text'>"+
+                                "<div class='hint_title'>english</div>"+
+                                "<div class='hint_desc'>"+info.english+"</div>"+
+                                "</div>");
+                        }
+                        else
+                        {
+                            pending_hint.native = {concords: info.concord_ids};
+                            pending_hint_elem.html(
+                                "<div class='hint_text'>"+
+                                "<div class='hint_title'>"+info.lang+"</div>"+
+                                "<div class='hint_desc'>"+info.native+"</div>"+
+                                "</div><i class='far fa-times-circle hint-delete'></i>");
+                        }
+
+                        pending_hint_elem = undefined;
+                        pending_hint = undefined;
+                    }
+                    else
+                    {
+                        if(info.lang == "english")
+                        {
+                            addHint("English", info.english,
+                                {words: info.words}, true);
+                        }
+                        else
+                        {
+                            addHint("Hebrew", info.native,
+                                {concords: info.concord_ids}, false);
+                        }
+                    }
+
+                    $.ajax({
+                        url:"../search",
+                        type:"POST",
+                        data:JSON.stringify(hint_list),
+                        contentType:"application/json; charset=utf-8",
+                    }).done(function(out, textStatus)
+                    {
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+
+                        if(out)
+                        {
+                            $( "#word-info" ).hide();
+                            updateResultList(out.data,
+                                             out.highlight_verse,
+                                             out.stats);
+                        }
+                        else
+                        {
+                            updateResultList([]);
+                        }
+                    });
+                }
+                else
+                {
+                    $.ajax({
+                        url:"../verse?book="+encodeURIComponent(info.book)+
+                            "&chapter="+encodeURIComponent(info.chapter)+
+                            "&verse="+encodeURIComponent(info.verse),
+                        type:"GET"
+                    }).done(function(out, textStatus)
+                    {
+                        if(out)
+                        {
+                            $("html, body").animate({ scrollTop: 0 }, "slow");
+
+                            $( "#word-info" ).hide();
+                            $( "#book_name" ).html(info.book);
+                            $( "#chapter_verse" ).html(info.chapter+
+                                                   ":"+info.verse);
+        	                $( "#main_verse" ).html(out.highlight_verse.text);
+
+                            highlight_concords =
+                                out.highlight_verse.concord_info;
+        	                addKeyWordClick();
+                        }
+                    });
+                }
+            }
+
+            function onBaselessSuccess(out, textStatus, type, related_hint)
+            {
+                $( "#sel_list" ).html("");
+                if (typeof window.orientation === 'undefined')
+                {
+                    $('#question').focus();
+                }
+
+                if(textStatus == "success")
+                {
+                    $( "#word-info" ).hide();
+                    updateResultList(out.data,
+                                     out.highlight_verse,
+                                     out.stats);
+                }
+                else
+                {
+                    $( '#error' ).css("display", "block");
+
+                    var basicTimeline = anime.timeline();
+                    basicTimeline.complete = function(anim) {
+                        $( '#error' ).css("display", "none");
+                    }
+                    basicTimeline
+                        .add({
+                            targets: ['#error'],
+                            opacity: '1',
+                            duration: 400,
+                            easing: 'linear'
+                        })
+                        .add({
+                            targets: ['#error'],
+                            opacity: '0',
+                            duration: 1350,
+                            easing: 'linear'
+                        })
+                }
+            }
+
+            function doSearch(q)
+            {
+                // at the moment, nothing to search when hints are in bar
+                if(hint_list.length > 0)
+                {
+                    return;
+                }
+
+                $( '#question' ).blur();
+
+                result_list = [];
+                $.ajax({
+                    url: "../baseless-search?text="+encodeURIComponent(q)
+                }).done(function(out, textStatus)
+                {
+                    if(textStatus == "success")
+                    {
+                        addHint("english", q, {words: [q]}, true);
+                        idx = hint_list.length-1;
+                        pending_hint = hint_list[idx];
+                        pending_hint_elem = $( ".side-hint" ).eq(idx);
+                        $( '#question' ).val("");
+                    }
+                    onBaselessSuccess(out, textStatus, "native");
+
+                }).fail(function()
+                {
+                    $( "#sel_list" ).html("");
+
+                    if (typeof window.orientation === 'undefined')
+                    {
+                        $('#question').focus();
+                    }
+                });
+            }
+
+            function getLocatorPos()
+            {
+                el = $( '.clicked-word' )[0]
+                for (var lx=0, ly=0; el != null;
+                     lx += el.offsetLeft,
+                     ly += el.offsetTop,
+                     el = el.offsetParent);
+
+                desiredHeight = 150;
+                topY = ly - desiredHeight - 10
+                low_pt = $('#verse_container')[0].offsetTop;
+
+                if(topY < 10)
+                {
+                    offset = (10 - topY);
+                    desiredHeight -= offset;
+                    topY += offset;
+                }
+                else if(topY > (low_pt - 170))
+                {
+                    offset = (topY - (low_pt - 170));
+                    desiredHeight += offset;
+                    topY -= offset;
+                }
+
+                $( "#line-container" ).css("height", desiredHeight);
+                $( "#pointer-line" )[0].y2.baseVal.value = desiredHeight;
+
+                return {top: topY,
+                        left: lx + ($( '.clicked-word' ).width() / 2)};
+            }
+
+            $( "#question" ).keydown(
+                function(evt)
+                {
+                    var q = $( this ).val().trim();
+                    if(q == "")
+                    {
+                        $( this ).css("color", "black");
+                    }
+                    else if(q.length == 1 && evt.keyCode == 8)  //backspace
+                    {
+                        $( this ).css("color", "grey");
+                    }
+                }
+            );
+
+            $('input[type=search]').on('search', function ()
+            {
+                var q = $( this ).val().trim();
+                if(hint_list.length <= 0)
+                {
+                    if(q != "")
+                    {
+                        doSearch(q);
+                    }
+                }
+                else
+                {
+                    addToSearch("English", q, {words: [q]}, true);
+                }
+            });
+
+            $( "#question" ).click(function()
+            {
+                if($( this ).val().trim() == "")
+                {
+                    $( this ).css("color", "black");
+                }
+            });
+
+            $( "#hint-arr-left" ).click(function()
+            {
+                $( "#breadcrumb" ).scrollLeft($( "#breadcrumb" ).scrollLeft() - 20);
+            });
+
+            $( "#hint-arr-right" ).click(function()
+            {
+                $( "#breadcrumb" ).scrollLeft($( "#breadcrumb" ).scrollLeft() + 20);
+            });
+
+            function updateContextMenuLoc()
+            {
+                obj = $('.hint').eq(current_hint_menu)[0]
+                $('#context_menu')[0].style.left = ''+(obj.offsetLeft + 15) + 'px';
+            }
+
+            $( window ).resize(function()
+            {
+                $( "#word-info" ).css(getLocatorPos());
+
+                if(searcher.hintUpdateTimerId != undefined)
+                {
+                    clearInterval(searcher.hintUpdateTimerId);
+                }
+
+                searcher.hintUpdateTimerId = setInterval(
+                    searcher.refreshHintArrowVisibility, 750);
+
+                if($('#context_menu')[0].style.visibility == '')
+                {
+                    updateContextMenuLoc();
+                }
+            });
+
+            // Callback that creates and populates a data table,
+            // instantiates the pie chart, passes in the data and
+            // draws it.
+            function drawChart(chart_info)
+            {
+                for(var item = 0; item < chart_info.length; item++)
+                {
+                    var info = chart_info[item];
+                    switch(info.type)
+                    {
+                        case "doughnut":
+                            var ctx = document.getElementById('chart'+(item+1)).getContext('2d');
+                            var donut_data = {datasets: [{data: [], backgroundColor: []}], labels: []};
+                            var just_update = (active_charts[item] != undefined);
+                            var info_len = info.data.length;
+
+                            if(just_update)
+                            {
+                                // reset/create the arrays
+                                var arr = active_charts[item].data;
+                                arr.labels = [];
+                                arr.datasets[0].data = [];
+                                arr.datasets[0].backgroundColor = [];
+                            }
+
+                            for(var inner = 0; inner < info_len; inner++)
+                            {
+                                var arr;
+                                if(just_update)
+                                {
+                                    arr = active_charts[item].data.datasets[0];
+                                    active_charts[item].data.labels[inner] = info.data[inner].key;
+                                }
+                                else
+                                {
+                                    arr = donut_data.datasets[0];
+                                    donut_data.labels[inner] = info.data[inner].key;
+                                }
+
+                                arr.data[inner] = info.data[inner].value;
+                                bg_alpha = 1.0 - (inner / info_len);
+                                arr.backgroundColor.push('rgba(139, 0, 0, '+bg_alpha+')');
+                            }
+
+                            if(just_update)
+                            {
+                                active_charts[item].update();
+                            }
+                            else
+                            {
+                                active_charts[item] = new Chart(
+                                    ctx,
+                                    {
+                                        type: info.type,
+                                        data: donut_data,
+                                        options: {
+                                            responsive: false,
+                                            legend: { position: "right", labels: {fontFamily: "Lato"} },
+                                            layout: { padding: { top: 13 }}
+                                        }
+                                    });
+                            }
+                            break;
+
+                        case "stat":
+                            active_charts[item] = $( "#chart"+(item+1) );
+                            active_charts[item].html("<div class='stat-category'>"+
+                                                  info.data[0].key+
+                                                  "</div>"+
+                                                  "<div class='stat-border'>"+
+                                                  "<div class='stat-value'>"+
+                                                  info.data[0].value+
+                                                  "</div></div>");
+                            break;
+                    }
+                }
+
+                for(var item = chart_info.length; item < active_charts.length; item++)
+                {
+                    if(typeof active_charts[item].destroy !== "undefined")
+                    {
+                        active_charts[item].destroy();
+                    }
+                    else if(typeof active_charts[item].html !== "undefined")
+                    {
+                        active_charts[item].html("");
+                    }
+                    active_charts.splice(item, 1);
+
+                    item--;
+                }
+            }
+
+            highlight_concords = [];
+            result_list = [];
+            hint_list = [];
+            active_charts = [];
+            pending_hint = undefined;
+            pending_hint_elem = undefined;
+            current_hint_menu = undefined;
+
+            $( "#word-info" ).hide();
+            $( "#breadcrumb" ).hide();
+            $( "#hint-arr-left" ).hide();
+            $( "#hint-arr-right" ).hide();
+
+            drawChart([]);  // todo: remove me
+
+            $.ajax({
+                url:"../random-verse",
+                type:"GET"
+            }).done(function(out, textStatus)
+            {
+                if(out)
+                {
+                    info = out.highlight_verse;
+                    $( "#book_name" ).html(info.book);
+                    $( "#chapter_verse" ).html(info.chapter+
+                                           ":"+info.verse);
+	                $( "#main_verse" ).html(info.text);
+
+                    highlight_concords = info.concord_info;
+	                addKeyWordClick();
+                }
+            }).fail(function(out, textStatus)
+            {
+                $( "#book_name" ).html("John");
+                $( "#chapter_verse" ).html("3:16");
+                $( "#main_verse" ).html("For God so loved the world that He \
+                    gave His only Son, that whoever believes in Him shall not \
+                    perish, but have eternal life.");
+            });
+        })();
+        </script>
+    </body>
+</html>
