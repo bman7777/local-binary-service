@@ -41,3 +41,23 @@ def test_nodata(client):
     response = client.post('/search', data=json.dumps([]),
                            headers={'Content-Type': 'application/json'})
     assert response.status_code == 204
+
+@pytest.mark.parametrize("param", [
+        [
+            {
+                "english": {"words": ["hope"], "synonym": True},
+                "native": {"concords": [24114]}
+            }
+        ],
+        [
+            {
+                "english": {"words": ["hope"], "synonym": True}
+            }
+        ],
+    ])
+def test_synonym(client, param):
+    response = client.post('/search', data=json.dumps(param),
+                           headers={'Content-Type': 'application/json'})
+    assert response.status_code == 200
+    out = json.loads(response.data)
+    assert len(out["data"]) > 0
