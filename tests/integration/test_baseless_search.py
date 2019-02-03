@@ -63,6 +63,8 @@ def test_bad_verse(client, bad_verse):
 
 @pytest.mark.parametrize("word", [
         "worlds",
+        "Worlds",
+        "holy spirit"
     ])
 def test_word_one_concord(client, word):
     response = client.get('/baseless-search?text='+word)
@@ -97,5 +99,3 @@ def test_word_synonyms(client, word):
     assert out["data"][0]["lang"]
     assert out["data"][0]["native"]
     assert out["data"][0]["english"]
-
-

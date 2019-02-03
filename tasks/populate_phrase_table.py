@@ -97,6 +97,7 @@ def insert_phrases(db, cursor):
                 content = pickle.load(file_object)
 
                 for phr, verse_tree in content.items():
+                    verse_tree = verse_tree.replace("'", '"')
                     try:
                         cursor.execute("""INSERT INTO Phrase(phrase, verse_tree) values(%s, %s);""", (phr, str(verse_tree)))
                     except MySQLdb.Error as up_err:

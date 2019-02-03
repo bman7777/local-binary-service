@@ -74,7 +74,35 @@ class Baseless(object):
         return data, highlight
 
     @staticmethod
-    def text_search(search_str, synonym, similar, page, page_size):
+    def get_phrase(search_str):
+        data = []
+        highlight = None
+
+        cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("""SELECT verse_tree
+                          FROM Phrase WHERE
+                          (Book.short_title=%s or Book.title=%s)
+                          and
+                          (Verse.chapter=%s and
+                           Verse.verse_num=%s);""",
+                          (book, book, chapter, verse))
+        if cursor.rowcount:
+            row = cursor.fetchone()
+            data.append({
+                            "book": row["title"],
+                            "chapter": chapter,
+                            "verse": verse,
+                            "text": row["text"]
+                        })
+
+            highlight = verse_helper.get_highlight(row)
+
+        cursor.close()
+        return data, highlight
+
+    @staticmethod
+    def text_search(search_str, page, page_size):
+
         # get rid of leading/trailing space since they add nothing
         search_str = search_str.strip()
         found_it = False
@@ -129,10 +157,17 @@ class Baseless(object):
                             "stats": stats
                         } ))
 
-            # question/statment search
+            # phrase/question/statement search
             else:
-                # TODO!!
-                found_it = False
+                data, highlight = Baseless.get_phrase(search_str)
+                if data:
+                    found_it = True
+                    resp = Response(json.dumps(
+                        {
+                            "data": data,
+                            "highlight_verse": highlight,
+                            "stats": []
+                        }))
 
         # we found nothing, so return nothing
         if not found_it:
