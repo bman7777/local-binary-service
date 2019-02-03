@@ -5,7 +5,7 @@
         <script type="text/javascript" src="anime.min.js"></script>
         <script type="text/javascript" src="jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="Chart.min.js"></script>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0' />
+        <meta name='viewport' content='width=device-width, initial-scale=0.66, maximum-scale=1.25' />
         <style>
                 li {
                     font-family: 'Lato', sans-serif;
@@ -20,12 +20,14 @@
                     max-width: 1000px;
                     display: flex;
                 }
-                #search_container {
+                #search_outer {
                     margin: auto;
                     margin-top: 20px;
                     width: 67%;
                     min-width: 600px;
                     max-width: 1000px;
+                }
+                #search_container {
                     border-style: solid;
                     border-color: lightgrey;
                     border-width: 3px;
@@ -117,7 +119,8 @@
                     justify-content: center;
                     width: 100%;
                     position: relative;
-                    margin-bottom: 10px;
+                    top: -20px;
+                    z-index: -2;
                 }
                 .chart_item {
                     width: 260px;
@@ -290,7 +293,7 @@
                 }
                 .hint {
                     padding-left: 15px;
-                    padding-right: 25px;
+                    padding-right: 15px;
                     padding-bottom: 10px;
                     z-index: 2;
                     border-radius: 30px 30px 30px 30px;
@@ -298,7 +301,7 @@
                     background-color: rgb(255, 250, 243);
                     display: flex;
                 }
-                .hint:hover {
+                .hint_hover {
                     background: linear-gradient(to right,rgb(220, 190, 190), rgb(255, 245, 245));
                     border: darkred 2px solid;
                     cursor: pointer;
@@ -330,6 +333,39 @@
                     padding-bottom: 5px;
                     margin-left: 12px;
                     white-space: nowrap;
+                }
+                .hint_option_icon_inactive {
+                    border: 1px solid;
+                    color: rgba(194, 150, 150, 0.85);
+                    border-radius: 30px;
+                    font-size: 19;
+                    padding-top: 8px;
+                    margin-left: 5px;
+                    text-align: center;
+                    width: 40px;
+                    height: 30px;
+                    margin-top: 4px;
+                }
+                .hint_option_icon_inactive:hover {
+                    color: darkred;
+                    background-color: white;
+                }
+                .hint_option_icon_active {
+                    border: 1px solid;
+                    background-color: rgba(194, 150, 150, 0.85);
+                    color: rgba(255, 255, 255, 0.85);
+                    border-radius: 30px;
+                    font-size: 19;
+                    padding-top: 8px;
+                    margin-left: 5px;
+                    text-align: center;
+                    width: 40px;
+                    height: 30px;
+                    margin-top: 4px;
+                }
+                .hint_option_icon_active:hover {
+                    color: darkred;
+                    background-color: white;
                 }
                 .side-hint {
                     border-radius: 0px 30px 30px 0px;
@@ -511,50 +547,31 @@
                     color: darkred;
                 }
 
-                #context_menu {
-                    position: relative;
-                    top: 185px;
-                    z-index: 1;
-                    width: 300px;
-                    margin-top: -196px;
-                    transform-origin: top;
+                #search_rooster {
+                    width: fit-content;
+                    background-color: darkred;
+                    border: 1px solid darkred;
+                    left: 0%;
+                    padding: 5px;
+                    padding-left: 15px;
+                    padding-right: 15px;
+                    border-radius: 0px 0px 10px 10px;
+                    color: white;
+                    font-family: 'Lato', sans-serif;
+                    font-size: 12px;
+                    visibility: hidden;
+                    float: right;
+                    margin-right: 100px;
+                    border-top: 0px;
                 }
 
-                .context_menu_item {
-                    text-align: center;
-                    height: 70px;
-                    background: linear-gradient(rgb(220, 215, 207),
-                                                rgb(255, 250, 243));
-                    display: flex;
-                    box-shadow: darkgrey -3px 3px 15px;
-                    border: 1px solid darkgrey;
-                }
-
-                .context_menu_item:hover {
-                    background: linear-gradient(to top,rgb(220, 190, 190), rgb(255, 245, 245));
-                    border: darkred 2px solid;
+                #search_rooster:hover {
+                    background-color: rgb(255, 250, 243);
+                    color: darkred;
+                    font-weight: 800;
                     cursor: pointer;
                     cursor: hand;
-                }
-
-                .cm_text_holder {
-                    margin: auto;
-                }
-
-                .cm_item_title {
-                    color: darkgrey;
-                    font-variant-caps: all-petite-caps;
-                    font-size: 18;
-                }
-
-                .cm_icon {
-                    position: absolute;
-                    font-size: 38;
-                    color: rgba(194, 150, 150, 0.85);
-                    width: 50px;
-                    height: 53px;
-                    padding-top: 15px;
-                    background-color: rgba(255, 250, 243, 0.7);
+                    border-color: lightgrey;
                 }
 
         </style>
@@ -574,40 +591,17 @@
             <div id="verse_loc"><div id="book_name" class="top_line_detail"></div><div id="chapter_verse" class="bottom_line_detail"></div></div>
             <div id="main_verse"></div>
         </div>
-        <div id="search_container">
-            <div id="hint-arr-left" class="hint-scroll-arrow"><i class="fas fa-chevron-left hint-arrow"></i></div>
-            <div id="breadcrumb"></div>
-            <input type="search" id="question" placeholder="You have questions, the Bible has answers..." autofocus="" maxlength="90" />
-            <div id="hint-arr-right" class="hint-scroll-arrow"><i class="fas fa-chevron-right hint-arrow"></i></div>
-            <div id="search_icon_holder">
-                <i class="fa fa-circle-thinner fa-search" id="search_btn"></i>
-            </div>
-        </div>
-        <div id="context_menu" style="visibility: hidden;">
-            <div id="cm_native" class='context_menu_item'
-                 style="transform: skew(7deg);">
-                <div class='cm_text_holder'>
-                    <div class='cm_item_title'>Native Form</div>
-                    <div class='test_desc3'>hebrew, greek</div>
+        <div id="search_outer">
+            <div id="search_container">
+                <div id="hint-arr-left" class="hint-scroll-arrow"><i class="fas fa-chevron-left hint-arrow"></i></div>
+                <div id="breadcrumb"></div>
+                <input type="search" id="question" placeholder="You have questions, the Bible has answers..." autofocus="" maxlength="90" />
+                <div id="hint-arr-right" class="hint-scroll-arrow"><i class="fas fa-chevron-right hint-arrow"></i></div>
+                <div id="search_icon_holder">
+                    <i class="fa fa-circle-thinner fa-search" id="search_btn"></i>
                 </div>
-                <i class="fab fa-pagelines cm_icon"></i>
             </div>
-            <div id="cm_synonym" class='context_menu_item'
-                 style="transform: skew(-7deg);">
-                <div class='cm_text_holder'>
-                    <div class='cm_item_title'>Synonyms</div>
-                    <div class='test_desc3'>Jesus, God, Lord</div>
-                </div>
-                <i class="fab fa-connectdevelop cm_icon"></i>
-            </div>
-            <div id="cm_similar" class='context_menu_item'
-                 style="transform: skew(7deg);">
-                <div class='cm_text_holder'>
-                    <div class='cm_item_title'>Similar Forms</div>
-                    <div class='test_desc3'>walked, walking</div>
-                </div>
-                <i class="far fa-clone cm_icon"></i>
-            </div>
+            <div id="search_rooster">View Search Results</div>
         </div>
         <div id="options">
             <div id="error">No Results</div>
@@ -793,9 +787,12 @@
                         "<i class='far fa-times-circle hint-delete'></i>"+
                         "<div class='hint_text'>"+
                         "<div class='hint_title'>"+title+"</div>"+
-                        "<div class='hint_desc'>"+desc+"</div></div></div>"+
-                        "<div class='side-hint'><i class='"+
-                        "add-concept-icon fas fa-plus-circle'>"+
+                        "<div class='hint_desc'>"+desc+"</div></div>"+
+                        "<i class='hint_option_icon_inactive fas fa-sitemap'></i>"+
+                        "<i class='hint_option_icon_inactive fas fa-code-branch'></i>"+
+                        "</div>"+
+                        "<div class='side-hint'>"+
+                        "<i class='add-concept-icon fas fa-plus-circle'>"+
                         "</i></div></div>");
                 }
                 else
@@ -813,6 +810,43 @@
                 }
 
                 enableHintView();
+
+                $( ".hint" ).off('mouseenter').on('mouseenter',
+                    function(evt)
+                    {
+                        $(this).addClass('hint_hover');
+                    });
+
+                $( ".hint" ).off('mouseleave').on('mouseleave',
+                    function(evt)
+                    {
+                        $(this).removeClass('hint_hover');
+                    });
+
+
+                $(".fa-sitemap").off('click touchend').on('click touchend',
+                    function(evt)
+                    {
+                        if(evt.type == "touch")
+                        {
+                            $(this).parent(".hint").removeClass('hint_hover');
+                        }
+
+                        changeExtra('synonym', $(this));
+                        return false;
+                    });
+
+                $(".fa-code-branch").off('click touchend').on('click touchend',
+                    function(evt)
+                    {
+                        if(evt.type == "touch")
+                        {
+                            $(this).parent(".hint").removeClass('hint_hover');
+                        }
+
+                        changeExtra('similar', $(this));
+                        return false;
+                    });
 
                 $( ".hint" ).off('click').click(
                     function(evt)
@@ -852,13 +886,13 @@
                                     if(out)
                                     {
                                         updateResultList(
-                                            out.data,
+                                            out.data, false,
                                             out.highlight_verse,
                                             out.stats);
                                     }
                                     else
                                     {
-                                        updateResultList([]);
+                                        updateResultList([], false);
                                     }
                                 });
                         }
@@ -876,44 +910,7 @@
                         if(hint_list[idx].native == undefined)
                         {
                             evt.preventDefault();
-                            if($('#context_menu')[0].style.visibility == 'hidden')
-                            {
-                                $(this).html("<i class='"+
-                                    "add-concept-icon fas fa-times-circle'></i>");
-
-                                current_hint_menu = idx;
-                                updateContextMenuLoc();
-
-                                var menu_ref = $('#context_menu')[0];
-                                menu_ref.style.transform = 'scaleY(.1)';
-                                menu_ref.style.opacity = '0.1';
-                                menu_ref.style.visibility = '';
-                                var cssProperties = anime({
-                                    targets: [menu_ref],
-                                    scaleY: '1',
-                                    opacity: '1',
-                                    duration: 200,
-                                    easing: 'linear'
-                                });
-                            }
-                            else
-                            {
-                                $(this).html("<i class='"+
-                                    "add-concept-icon fas fa-plus-circle'></i>");
-
-                                current_hint_menu = undefined;
-                                var menu_ref = $('#context_menu')[0];
-                                var cssProperties = anime({
-                                    targets: ['#context_menu'],
-                                    duration: 100,
-                                    scaleY: '.1',
-                                    opacity: '0.1',
-                                    easing: 'linear',
-                                    complete: function(anim) {
-                                        menu_ref.style.visibility = 'hidden';
-                                    }
-                                });
-                            }
+                            addNativeSelection(idx);
                         }
                         else if(hint_list[idx].english != undefined)
                         {
@@ -923,8 +920,7 @@
 
                             if(hint_list.length == 1)
                             {
-                                current_hint_menu = idx;
-                                addNativeSelection(current_hint_menu);
+                                addNativeSelection(idx);
                             }
                             else
                             {
@@ -938,13 +934,13 @@
                                     if(out)
                                     {
                                         updateResultList(
-                                            out.data,
+                                            out.data, false,
                                             out.highlight_verse,
                                             out.stats);
                                     }
                                     else
                                     {
-                                        updateResultList([]);
+                                        updateResultList([], false);
                                     }
                                 });
                             }
@@ -957,32 +953,6 @@
                 );
             }
 
-            $( ".context_menu_item" ).off('click').click(
-                function(evt)
-                {
-                    $( ".side-hint" ).eq(
-                        current_hint_menu).html("<i class='"+
-                                                "add-concept-icon fas "+
-                                                "fa-plus-circle'></i>");
-
-                    var menu_idx = $( ".context_menu_item" ).index(this);
-                    $('#context_menu')[0].style.visibility = 'hidden'
-
-                    if(menu_idx == 0) //native
-                    {
-                        addNativeSelection(current_hint_menu);
-                    }
-                    else if(menu_idx == 1) //synonyms
-                    {
-                        // todo
-                    }
-                    else if(menu_idx == 2) //similar forms
-                    {
-                        // todo
-                    }
-                }
-            );
-
             function removeHintByIndex(idx)
             {
                 $( "#word-info" ).hide();
@@ -991,7 +961,7 @@
                 searcher.refreshHintArrowVisibility();
                 if(hint_list.length <= 0)
                 {
-                    updateResultList([]);
+                    updateResultList([], false);
                     enableTextSearch();
                 }
                 else
@@ -1007,35 +977,49 @@
                         if(out)
                         {
                             updateResultList(
-                                out.data,
+                                out.data, false,
                                 out.highlight_verse,
                                 out.stats);
                         }
                         else
                         {
-                            updateResultList([]);
+                            updateResultList([], false);
                         }
                     });
                 }
+            }
+
+            function buildBaselessQueryString(idx)
+            {
+                var query_string = encodeURIComponent(
+                    hint_list[idx].english.words[0])
+                if(hint_list[idx].english.synonym)
+                {
+                    query_string += "&synonym";
+                }
+                if(hint_list[idx].english.similar)
+                {
+                    query_string += "&similar";
+                }
+
+                return query_string;
             }
 
             function addNativeSelection(idx)
             {
                 pending_hint_elem = $( ".side-hint" ).eq(idx);
                 pending_hint = hint_list[idx];
-                $.ajax({
-                    url: "../baseless-search?text="+
-                        encodeURIComponent(
-                            hint_list[idx].english.words[0])
-                }).done(function(out, textStatus)
-                {
-                    onBaselessSuccess(out, textStatus,
-                                      "native", hint_list[idx]);
 
-                }).fail(function()
-                {
-                    // todo
-                });
+                $.ajax({url: "../baseless-search?text="+
+                    buildBaselessQueryString(idx)}).done(
+                        function(out, textStatus)
+                        {
+                            onBaselessSuccess(
+                                out, textStatus, "native", hint_list[idx]);
+                        }).fail(function()
+                        {
+                            // todo
+                        });
             }
 
             function addToSearch(title, desc, meta_search, isEnglish)
@@ -1055,13 +1039,51 @@
                     if(out)
                     {
                         $( "#word-info" ).hide();
-                        updateResultList(out.data,
+                        updateResultList(out.data, false,
                                          out.highlight_verse,
                                          out.stats);
                     }
                     else
                     {
-                        updateResultList([]);
+                        updateResultList([], false);
+                    }
+                });
+            }
+
+            function changeExtra(extra_type, elem)
+            {
+                var idx = $( ".hint" ).index(elem.parent(".hint"));
+                if(hint_list[idx].english[extra_type] == true)
+                {
+                    hint_list[idx].english[extra_type] = false;
+                    elem.removeClass('hint_option_icon_active').addClass('hint_option_icon_inactive');
+                }
+                else
+                {
+                    hint_list[idx].english[extra_type] = true;
+                    elem.removeClass('hint_option_icon_inactive').addClass('hint_option_icon_active');
+                }
+
+                // refresh search
+                $.ajax({
+                    url:"../search",
+                    type:"POST",
+                    data:JSON.stringify(hint_list),
+                    contentType:"application/json; charset=utf-8",
+                }).done(function(out, textStatus)
+                {
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+
+                    if(out)
+                    {
+                        $( "#word-info" ).hide();
+                        updateResultList(out.data, false,
+                                         out.highlight_verse,
+                                         out.stats);
+                    }
+                    else
+                    {
+                        updateResultList([], false);
                     }
                 });
             }
@@ -1124,7 +1146,7 @@
                 );
             }
 
-            function updateResultList(items, highlight_verse, stats)
+            function updateResultList(items, isBaseless, highlight_verse, stats)
             {
                 $( "#sel_list" ).html("");
 
@@ -1196,6 +1218,8 @@
                     }
                 }
 
+                $("#search_rooster").css("visibility",
+                    (hint_list.length <= 0 || !isBaseless) ? "hidden" : "visible");
                 $( ".search_res" ).click(function()
                 {
                     searchResultClick(this);
@@ -1271,13 +1295,13 @@
                         if(out)
                         {
                             $( "#word-info" ).hide();
-                            updateResultList(out.data,
+                            updateResultList(out.data, false,
                                              out.highlight_verse,
                                              out.stats);
                         }
                         else
                         {
-                            updateResultList([]);
+                            updateResultList([], false);
                         }
                     });
                 }
@@ -1319,7 +1343,7 @@
                 if(textStatus == "success")
                 {
                     $( "#word-info" ).hide();
-                    updateResultList(out.data,
+                    updateResultList(out.data, true,
                                      out.highlight_verse,
                                      out.stats);
                 }
@@ -1464,11 +1488,30 @@
                 $( "#breadcrumb" ).scrollLeft($( "#breadcrumb" ).scrollLeft() + 20);
             });
 
-            function updateContextMenuLoc()
+            $( "#search_rooster" ).click(function()
             {
-                obj = $('.hint').eq(current_hint_menu)[0]
-                $('#context_menu')[0].style.left = ''+(obj.offsetLeft + 15) + 'px';
-            }
+                $.ajax({
+                        url:"../search",
+                        type:"POST",
+                        data:JSON.stringify(hint_list),
+                        contentType:"application/json; charset=utf-8",
+                    }).done(function(out, textStatus)
+                    {
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+
+                        if(out)
+                        {
+                            $( "#word-info" ).hide();
+                            updateResultList(out.data, false,
+                                             out.highlight_verse,
+                                             out.stats);
+                        }
+                        else
+                        {
+                            updateResultList([], false);
+                        }
+                    });
+            })
 
             $( window ).resize(function()
             {
@@ -1481,11 +1524,6 @@
 
                 searcher.hintUpdateTimerId = setInterval(
                     searcher.refreshHintArrowVisibility, 750);
-
-                if($('#context_menu')[0].style.visibility == '')
-                {
-                    updateContextMenuLoc();
-                }
             });
 
             // Callback that creates and populates a data table,
@@ -1587,7 +1625,6 @@
             active_charts = [];
             pending_hint = undefined;
             pending_hint_elem = undefined;
-            current_hint_menu = undefined;
 
             $( "#word-info" ).hide();
             $( "#breadcrumb" ).hide();

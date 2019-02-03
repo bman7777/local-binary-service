@@ -15,8 +15,19 @@ def baseless_search():
             int(unquote(request.args.get("page", "0"))),
             int(unquote(request.args.get("pageSize", "15"))))
     else:
+
+        similar = False
+        synonym = False
+        for item in request.args:
+            if item == "synonym":
+                synonym = True
+            elif item == "similar":
+                similar = True
+
         return Baseless.text_search(
             unquote(request.args.get("text", "")),
+            synonym,
+            similar,
             int(unquote(request.args.get("page", "0"))),
             int(unquote(request.args.get("pageSize", "15"))))
 
@@ -63,8 +74,7 @@ class Baseless(object):
         return data, highlight
 
     @staticmethod
-    def text_search(search_str, page, page_size):
-
+    def text_search(search_str, synonym, similar, page, page_size):
         # get rid of leading/trailing space since they add nothing
         search_str = search_str.strip()
         found_it = False
@@ -96,7 +106,7 @@ class Baseless(object):
             elif search_str.find(' ') == -1:
 
                 low_src = search_str.lower()
-                merged_concords = concord_helper.from_str(low_src)
+                merged_concords = concord_helper.from_str(low_src, synonym, similar)
 
                 # if there are multiple concords for this word, then
                 # we need to ask the user for context

@@ -3,7 +3,7 @@ import MySQLdb
 import pickle
 
 from __init__ import db
-from . import concord_helper, verse_helper
+from . import verse_helper
 
 def _add_to_out_tree(out_tree, word_tree, word_key):
     for book in word_tree[word_key].keys():
@@ -23,6 +23,15 @@ def _add_to_out_tree(out_tree, word_tree, word_key):
 
                 if verse not in out_tree[book][chapter]:
                     out_tree[book][chapter].append(verse)
+
+
+def _push_word(word_set, wd):
+    word_set.add(wd)
+    if wd[0].isupper():
+        word_set.add(wd.lower())
+    elif len(wd) > 1:
+        word_set.add(wd[0].upper() + wd[1:])
+
 
 def _build_tree(out_tree, cursor, crit):
     if "native" in crit:
@@ -44,28 +53,50 @@ def _build_tree(out_tree, cursor, crit):
                     _add_to_out_tree(out_tree, word_tree, word_key)
 
     elif "english" in crit:
+        synonym = crit["english"].get("synonym", False)
+        similar = crit["english"].get("similar", False)
         in_words = crit["english"].get("words", [])
         word_set = set()
         for wd in in_words:
-            word_set.add(wd)
-
-            if wd[0].isupper():
-                word_set.add(wd.lower())
-            elif len(wd) > 1:
-                word_set.add(wd[0].upper() + wd[1:])
+            _push_word(word_set, wd)
 
         if word_set:
             quoted_words = [MySQLdb.escape_string(wd).decode('utf-8') for wd in word_set]
             sql_words = "('" + "', '".join(quoted_words) + "')"
-            cursor.execute("""SELECT ordered_concord FROM Word
+            cursor.execute("""SELECT ordered_concord, details FROM Word
                               WHERE word IN """+sql_words)
 
             concord_set = set()
+            extra_set = set()
             for idx in range(cursor.rowcount):
                 row = cursor.fetchone()
                 this_con_set = pickle.loads(row['ordered_concord'])
                 for concord,word_dist in this_con_set:
                     concord_set.add(concord)
+
+                if synonym or similar:
+                    this_det_set = json.loads(row['details'])
+                    for this_det in this_det_set:
+                        if synonym and ("syn" in this_det):
+                            extra_set |= set(this_det['syn'])
+
+                        if similar and ("sim" in this_det):
+                            extra_set |= set(this_det['sim'])
+
+            if extra_set:
+                for extra in extra_set:
+                    _push_word(word_set, extra)
+
+                quoted_words = [MySQLdb.escape_string(wd).decode('utf-8') for wd in extra_set]
+                sql_words = "('" + "', '".join(quoted_words) + "')"
+                cursor.execute("""SELECT ordered_concord FROM Word
+                                  WHERE word IN """+sql_words)
+
+                for idx in range(cursor.rowcount):
+                    row = cursor.fetchone()
+                    this_con_set = pickle.loads(row['ordered_concord'])
+                    for concord,word_dist in this_con_set:
+                        concord_set.add(concord)
 
             if concord_set:
                 cursor.execute("""SELECT word_tree FROM Concordance

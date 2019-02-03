@@ -5,47 +5,84 @@ import pickle
 from __init__ import db
 from . import verse_helper
 
-def from_str(search_str):
+
+def _push_merge_concords(merged_concords, concord_set, this_con_set):
+    if not merged_concords:
+        for concord,word_dist in this_con_set:
+            if concord in concord_set:
+                continue
+            concord_set.add(concord)
+            merged_concords.append((concord,word_dist))
+    else:
+        # merge A and B as sorted lists
+        # also make sure that the same concord isn't in 2 places
+        curr_idx = 0
+        for concord,word_dist in this_con_set:
+            if concord in concord_set:
+                continue
+
+            if curr_idx < len(merged_concords):
+                while word_dist > merged_concords[curr_idx][1]:
+                    curr_idx += 1
+                    if curr_idx >= len(merged_concords):
+                        break
+
+            if curr_idx >= len(merged_concords):
+                merged_concords.append((concord, word_dist))
+            else:
+                merged_concords.insert(curr_idx, (concord, word_dist))
+
+            concord_set.add(concord)
+            curr_idx += 1
+
+
+def from_str(search_str, synonym, similar):
     low_src = search_str.lower()
     cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("""SELECT ordered_concord, word FROM Word
+    cursor.execute("""SELECT ordered_concord, word, details FROM Word
                       WHERE LOWER(word)=%s;""", (low_src,))
 
     merged_concords = []
     concord_set = set()
+    extra_set = set()
     for idx in range(cursor.rowcount):
         row = cursor.fetchone()
         this_con_set = pickle.loads(row['ordered_concord'])
-        if not merged_concords:
+        _push_merge_concords(merged_concords, concord_set, this_con_set)
+
+        if synonym and ("details" in row):
+            this_det_set = json.loads(row['details'])
+            for this_det in this_det_set:
+                if "syn" in this_det:
+                    extra_set |= set(this_det['syn'])
+
+        if similar:
+            # TODO
+            pass
+
+    quoted_words = [MySQLdb.escape_string(wd).decode('utf-8') for wd in list(extra_set)]
+    if quoted_words:
+        secondary_concord_set = set()
+        sql_words = "('" + "', '".join(quoted_words) + "')"
+        cursor.execute("""SELECT ordered_concord FROM Word
+                          WHERE word IN """+sql_words)
+
+        # make a list of all matching concords
+        for deep_idx in range(cursor.rowcount):
+            deep_row = cursor.fetchone()
+            this_con_set = pickle.loads(deep_row['ordered_concord'])
             for concord,word_dist in this_con_set:
-                if concord in concord_set:
-                    continue
-                concord_set.add(concord)
-                merged_concords.append((concord,word_dist))
-        else:
-            # merge A and B as sorted lists
-            # also make sure that the same concord isn't in 2 places
-            curr_idx = 0
-            for concord,word_dist in this_con_set:
-                if concord in concord_set:
-                    continue
+                secondary_concord_set.add(concord)
 
-                if curr_idx < len(merged_concords):
-                    while word_dist > merged_concords[curr_idx][1]:
-                        curr_idx += 1
-                        if curr_idx >= len(merged_concords):
-                            break
-
-                if curr_idx >= len(merged_concords):
-                    merged_concords.append((concord, word_dist))
-                else:
-                    merged_concords.insert(curr_idx, (concord, word_dist))
-
-                concord_set.add(concord)
-                curr_idx += 1
+        # no need to sort these word_dists, just append to the end
+        for second_concord in secondary_concord_set:
+            if second_concord not in concord_set:
+                concord_set.add(second_concord)
+                merged_concords.append((second_concord, 1000))
 
     cursor.close()
     return merged_concords
+
 
 def resolve_concords(merged_concords, word_list):
     word_cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
