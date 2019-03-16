@@ -4,7 +4,7 @@ import MySQLdb
 from urllib.parse import unquote
 
 from __init__ import app, db
-from utilities import concord_helper, verse_helper
+from utilities import verse_helper
 from flask import request, Response
 
 @app.route('/baseless-search', methods=['GET'])
@@ -13,7 +13,7 @@ def baseless_search():
         return Baseless.concord_search(
             int(request.args.get("concord", "")),
             int(unquote(request.args.get("page", "0"))),
-            int(unquote(request.args.get("pageSize", "15"))))
+            int(unquote(request.args.get("pageSize", "50"))))
     else:
 
         similar = False
@@ -26,10 +26,10 @@ def baseless_search():
 
         return Baseless.text_search(
             unquote(request.args.get("text", "")),
-            synonym,
             similar,
+            synonym,
             int(unquote(request.args.get("page", "0"))),
-            int(unquote(request.args.get("pageSize", "15"))))
+            int(unquote(request.args.get("pageSize", "50"))))
 
 
 class Baseless(object):
@@ -49,12 +49,12 @@ class Baseless(object):
             if chapter > 0 and verse > 0:
                 cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
                 cursor.execute("""SELECT Book.title, Verse.hypertext,
-                                  Verse.text, Verse.chapter, Verse.verse_num,
-                                  Verse.concord_set
+                                         Verse.text, Verse.chapter,
+                                         Verse.verse_num, Verse.concord_set
                                   FROM Book JOIN Verse on
                                   Verse.book_id = Book.book_id WHERE
                                   (Book.short_title=%s or Book.title=%s)
-                                  and
+                                  AND
                                   (Verse.chapter=%s and
                                    Verse.verse_num=%s);""",
                                   (book, book, chapter, verse))
@@ -74,34 +74,112 @@ class Baseless(object):
         return data, highlight
 
     @staticmethod
-    def get_phrase(search_str):
+    def get_phrase(search_str, page, page_size):
         data = []
         highlight = None
+        has_next = False
 
         cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("""SELECT verse_tree
-                          FROM Phrase WHERE
-                          (Book.short_title=%s or Book.title=%s)
-                          and
-                          (Verse.chapter=%s and
-                           Verse.verse_num=%s);""",
-                          (book, book, chapter, verse))
-        if cursor.rowcount:
-            row = cursor.fetchone()
-            data.append({
-                            "book": row["title"],
-                            "chapter": chapter,
-                            "verse": verse,
-                            "text": row["text"]
-                        })
+        cursor.execute("""SELECT Book.title, Verse.hypertext,
+                                 Verse.text, Verse.chapter, Verse.verse_num,
+                                 Verse.concord_set
+                          FROM Phrase
+                          JOIN PhraseVerseBridge Pvb ON Phrase.phrase_id = Pvb.phrase_id
+                          JOIN Verse ON Pvb.verse_hash = Verse.hash
+                          JOIN Book ON Verse.book_id = Book.book_id
+                          WHERE Phrase.phrase_ci = %s
+                          LIMIT %s
+                          OFFSET %s;""",
+                          (search_str, page_size+1, page*page_size))
 
-            highlight = verse_helper.get_highlight(row)
+        if cursor.rowcount:
+            for idx in range(cursor.rowcount):
+                if idx >= page_size:
+                    has_next = True
+                    break
+
+                row = cursor.fetchone()
+                if not highlight:
+                    highlight = verse_helper.get_highlight(row)
+
+                if row:
+                    data.append({
+                                    "book": row["title"],
+                                    "chapter": row["chapter"],
+                                    "verse": row["verse_num"],
+                                    "text": row["text"],
+                                    "type": "verse",
+                                    "lang": "english"
+                                })
 
         cursor.close()
-        return data, highlight
+        return data, highlight, has_next
 
     @staticmethod
-    def text_search(search_str, page, page_size):
+    def get_word(search_word, similar, synonym, page, page_size):
+
+        data = []
+        highlight = None
+        has_next = False
+
+        sim_clause = "OR Wcb.is_similar = 1" if similar else ""
+        sim_clause += "OR Wcb.is_synonym = 1" if synonym else ""
+
+        cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("""SELECT Concordance.concord_id, Word.word,
+                          Concordance.native, Concordance.lang,
+                          Concordance.description, Wcb.num_verses,
+                          Book.title
+                          FROM Concordance
+                          JOIN WordConcordanceBridge Wcb ON
+                                      Concordance.concord_id = Wcb.concord_id
+                          JOIN Word ON Wcb.word_id = Word.word_id
+                          JOIN Book ON Wcb.most_common_book_id = Book.book_id
+                          WHERE Word.word_ci = %s AND (Wcb.is_match = 1 {})
+                          ORDER BY Wcb.bridge_id DESC
+                          LIMIT %s
+                          OFFSET %s;""".format(sim_clause),
+                          (search_word.lower(), page_size+1, page*page_size))
+
+        print("rows: "+str(cursor.rowcount))
+        if cursor.rowcount:
+            for idx in range(cursor.rowcount):
+                if len(data) >= page_size:
+                    has_next = True
+                    break
+
+                row = cursor.fetchone()
+                data.append({'type': 'category',
+                             'lang':row['lang'],
+                             'native': row['native'],
+                             'english': row['word'],
+                             'description': row['description'],
+                             'num_verse': row['num_verses'],
+                             'common_book': row['title'],
+                             'concord_ids': [row['concord_id']]})
+
+                if False:
+                    pass #highlight = verse_helper.get_highlight(row)
+
+        cursor.execute("""SELECT Concordance.lang, COUNT(*) AS total
+                          FROM Concordance
+                          JOIN WordConcordanceBridge Wcb ON Concordance.concord_id = Wcb.concord_id
+                          JOIN Word ON Wcb.word_id = Word.word_id
+                          WHERE Word.word = %s AND (Wcb.is_match = 1 {})
+                          GROUP BY Concordance.lang;""".format(sim_clause),
+                          (search_word.lower(),))
+
+        stats = []
+        if cursor.rowcount:
+            for idx in range(cursor.rowcount):
+                row = cursor.fetchone()
+                stats.append({'key': row['lang'], 'value': row['total']})
+
+        cursor.close()
+        return data, highlight, stats, has_next
+
+    @staticmethod
+    def text_search(search_str, similar, synonym, page, page_size):
 
         # get rid of leading/trailing space since they add nothing
         search_str = search_str.strip()
@@ -133,40 +211,28 @@ class Baseless(object):
             # one word match
             elif search_str.find(' ') == -1:
 
-                low_src = search_str.lower()
-                merged_concords = concord_helper.from_str(low_src, synonym, similar)
-
-                # if there are multiple concords for this word, then
-                # we need to ask the user for context
-                num_concords = len(merged_concords)
-                data = None
-                highlight = None
-                if num_concords > 1:
-                    data, highlight, stats = concord_helper.resolve_concords(
-                                        merged_concords, [low_src])
-                elif num_concords == 1:
-                    data, highlight, stats = verse_helper.from_concords(
-                        [merged_concords[0][0]], [low_src], page, page_size)
-
+                data, highlight, stats, next_page = Baseless.get_word(search_str, similar, synonym, page, page_size)
                 if data:
                     found_it = True
                     resp = Response(json.dumps(
                         {
                             "data": data,
                             "highlight_verse": highlight,
-                            "stats": stats
-                        } ))
+                            "stats": stats,
+                            "next_page": next_page
+                        }))
 
             # phrase/question/statement search
             else:
-                data, highlight = Baseless.get_phrase(search_str)
+                data, highlight, next_page = Baseless.get_phrase(search_str, page, page_size)
                 if data:
                     found_it = True
                     resp = Response(json.dumps(
                         {
                             "data": data,
                             "highlight_verse": highlight,
-                            "stats": []
+                            "stats": [],
+                            "next_page": next_page
                         }))
 
         # we found nothing, so return nothing
@@ -181,7 +247,35 @@ class Baseless(object):
 
     @staticmethod
     def concord_search(concord, page, page_size):
-        data, highlight, stats = concord_helper.resolve_words([concord])
+
+        word_cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
+        data = []
+        highlight = None
+
+        word_cursor.execute("""SELECT word_tree
+                              FROM Concordance WHERE concord_id=%s;""",
+                              (concord,))
+
+        if word_cursor.rowcount:
+            tree = json.loads(word_cursor.fetchone()["word_tree"])
+
+            for wd in tree:
+                vs_cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
+                book_title = "Psalms"
+                #highest_book_cnt = 0
+                data.append({'type': 'category',
+                             'lang': 'english',
+                             'english': wd,
+                             'num_verse': 17,
+                             'common_book': book_title,
+                             'words': [wd]})
+
+                if book_title and not highlight:
+                    pass #highlight = verse_helper.get_highlight(row)
+
+                vs_cursor.close()
+
+        word_cursor.close()
         found_it = False
         if data:
             found_it = True
@@ -189,7 +283,7 @@ class Baseless(object):
                 {
                     "data": data,
                     "highlight_verse": highlight,
-                    "stats": stats
+                    "stats": []
                 } ))
 
         # we found nothing, so return nothing

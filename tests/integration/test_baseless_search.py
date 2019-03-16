@@ -63,10 +63,28 @@ def test_bad_verse(client, bad_verse):
 
 @pytest.mark.parametrize("word", [
         "worlds",
-        "Worlds",
-        "holy spirit"
+        "WORlds",
+        "House",
+        "house",
+        "Jesus",
     ])
 def test_word_one_concord(client, word):
+    response = client.get('/baseless-search?text='+word)
+    assert response.status_code == 200
+    out = json.loads(response.data)
+    assert len(out["data"]) >= 1
+    assert out["data"][0]["type"]
+    assert out["data"][0]["lang"]
+    assert out["data"][0]["native"]
+    assert out["data"][0]["english"]
+    assert out["data"][0]["description"]
+
+
+@pytest.mark.parametrize("word", [
+        "Holy Spirit",
+        "HOLy SpiRIt"
+    ])
+def test_phrase_one_concord(client, word):
     response = client.get('/baseless-search?text='+word)
     assert response.status_code == 200
     out = json.loads(response.data)
@@ -88,14 +106,10 @@ def test_word_synonyms(client, word):
     assert num_with >= 1
     assert out["data"][0]["type"]
     assert out["data"][0]["lang"]
-    assert out["data"][0]["native"]
-    assert out["data"][0]["english"]
 
     response = client.get('/baseless-search?text='+word)
     assert response.status_code == 200
     out = json.loads(response.data)
-    assert num_with > len(out["data"])
+    assert num_with > len(out["data"]) or out["next_page"]
     assert out["data"][0]["type"]
     assert out["data"][0]["lang"]
-    assert out["data"][0]["native"]
-    assert out["data"][0]["english"]
