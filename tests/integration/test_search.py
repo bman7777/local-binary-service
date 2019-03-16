@@ -29,6 +29,19 @@ def test_allowed(client):
                 "native": {"concords": [24635]}
             }
         ],
+        [
+            {
+                "english": {"words": ["the Day of the lord"]}
+            }
+        ],
+        [
+            {
+                "english": {"words": ["the Day of the lord"]}
+            },
+            {
+                "native": {"concords": [29938]}
+            }
+        ],
     ])
 def test_standard(client, param):
     response = client.post('/search', data=json.dumps(param),
