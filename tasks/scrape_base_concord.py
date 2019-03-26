@@ -53,6 +53,7 @@ def prettyify(in_word, alternative, has_paren_count=False):
 
     return ("",)
 
+
 def lev_dist(source, target):
     if source == target:
         return 0
@@ -77,6 +78,7 @@ def lev_dist(source, target):
                         )
     return dist[-1][-1]
 
+
 def insert(db, cursor, concord_id, lang, english, verse_tree,
            trans_map, word_map):
     try:
@@ -92,7 +94,7 @@ def insert(db, cursor, concord_id, lang, english, verse_tree,
         concord_row_key = str(cursor.lastrowid)
         db.commit()
 
-        for trans, count in trans_map.items():
+        for trans in trans_map.keys():
             cursor.execute("""SELECT ordered_concord, word_id
                               FROM Word WHERE word = %s; """, (trans,))
             nat_dist = lev_dist(trans, english)
@@ -135,9 +137,22 @@ def insert(db, cursor, concord_id, lang, english, verse_tree,
                     db.commit()
 
 
-def build_word_tree(root_node, trans_map, book_map):
-    word_map = {}
-    verse_tree = {}
+def update(db, cursor, concord_id, lang, verse_tree, word_map):
+    try:
+        cursor.execute("""UPDATE Concordance SET
+                        verse_tree = %s, word_tree = %s
+                        WHERE extern_id = %s AND lang = %s;""",
+                        (json.dumps(verse_tree), json.dumps(word_map),
+                         concord_id, lang))
+    except MySQLdb.Error as ins_err:
+        print("rollback due to: {}".format(ins_err))
+        db.rollback()
+    finally:
+        db.commit()
+
+
+def build_word_tree(root_node, trans_map, book_map, word_map, verse_tree):
+
     lower_trans_map = set(k.lower() for k in trans_map)
     len_lower_trans_map = len(lower_trans_map)
     default_trans = None
@@ -219,10 +234,23 @@ def build_word_tree(root_node, trans_map, book_map):
                 if verse_num not in word_map[highlight_text][book_id][chapter_num]:
                     word_map[highlight_text][book_id][chapter_num].append(verse_num)
 
-    return word_map, verse_tree
+
+def fill_word_tree(url, word_tree, verse_tree, book_map, trans_map):
+    page = requests.get(url)
+    tree = html.fromstring(page.content)
+
+    verses = tree.xpath('//div[@id="leftbox"]/'
+                        'div[@class="padleft"]/p/b/'
+                        'a[@title="Biblos Lexicon"]/text()')
+    if verses:
+        build_word_tree(
+            tree.xpath('//div[@id="leftbox"]/div[@class="padleft"]/p'),
+            trans_map, book_map, word_tree, verse_tree)
+
+    return tree
 
 
-def populate(lang_list, book_map, db):
+def populate(lang_list, book_map, db, is_insert):
     cursor = db.cursor(MySQLdb.cursors.DictCursor)
 
     for lang in lang_list:
@@ -247,47 +275,52 @@ def populate(lang_list, book_map, db):
                                      '/following-sibling::text()[1]')
 
             if translit or shortdef:
-                page = requests.get(f"http://biblehub.com/"
-                                    f"{lang}/strongs_{concord_id}.htm")
-                tree = html.fromstring(page.content)
+                trans_map = {}
+                if translation:
+                    trans_list = translation[0].split(",")
+                    for trans in trans_list:
+                        word_tup = prettyify(trans, "", True)
+                        if word_tup[0]:
+                            if word_tup[0] in trans_map:
+                                trans_map[word_tup[0]] += word_tup[1]
+                            else:
+                                trans_map[word_tup[0]] = word_tup[1]
+                else:
+                    word_tup = prettyify(shortdef[0] if shortdef else "",
+                                         translit[0] if translit else "")
+                    trans_map[word_tup[0]] = 9999 # a very big number
 
-                verses = tree.xpath('//div[@id="leftbox"]/'
-                                    'div[@class="padleft"]/p/b/'
-                                    'a[@title="Biblos Lexicon"]/text()')
+                word_tree = {}
+                verse_tree = {}
+                print(f"extern_id is: {concord_id}   lang is: {lang}")
+                tree = fill_word_tree(f"http://biblehub.com/"
+                                      f"{lang}/strongs_{concord_id}.htm",
+                                      word_tree, verse_tree, book_map, trans_map)
 
-                if verses:
-                    print(f"extern_id is: {concord_id}   lang is: {lang}")
+                if word_tree:
                     english = prettyify(shortdef[0] if shortdef else "",
-                                       translit[0] if translit else "")[0]
+                                        translit[0] if translit else "")[0]
 
-                    trans_map = {}
-                    if translation:
-                        trans_list = translation[0].split(",")
-                        for trans in trans_list:
-                            word_tup = prettyify(trans, "", True)
-                            if word_tup[0]:
-                                if word_tup[0] in trans_map:
-                                    trans_map[word_tup[0]] += word_tup[1]
-                                else:
-                                    trans_map[word_tup[0]] = word_tup[1]
+                    anc_list = tree.xpath('//div[@id="centbox"]/'
+                        'div[@class="padcent"]/'
+                        'a[following::div[@class="vheading2"]]/@href')
+                    for anc in anc_list:
+                        fill_word_tree(f"http://biblehub.com"+anc, word_tree,
+                                       verse_tree, book_map, trans_map)
+
+                    if is_insert:
+                        insert(db, cursor, concord_id, lang, english,
+                               verse_tree, trans_map, word_tree)
                     else:
-                        word_tup = prettyify(shortdef[0] if shortdef else "",
-                                             translit[0] if translit else "")
-                        trans_map[word_tup[0]] = len(verses)
-
-                    word_tree, verse_tree = build_word_tree(
-                        tree.xpath('//div[@id="leftbox"]/'
-                                   'div[@class="padleft"]/p'),
-                        trans_map, book_map)
-
-                    insert(db, cursor, concord_id, lang, english,
-                           verse_tree, trans_map, word_tree)
+                        update(db, cursor, concord_id, lang, verse_tree,
+                               word_tree)
 
             else:
                 print(f"no more concordance info at id: {concord_id}")
                 break
 
     cursor.close()
+
 
 def init():
     approved_replace = open("approved-replace.txt","r")
@@ -314,7 +347,7 @@ def init():
     book_map["psalm"] = book_map["psalms"]
 
     # loop through all concordances of all languages and scape the relevant info
-    populate(['hebrew', 'greek'], book_map, db)
+    populate(['hebrew', 'greek'], book_map, db, False)
 
     db.close()
 

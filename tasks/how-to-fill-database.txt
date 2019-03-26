@@ -1,0 +1,19 @@
+delete from Book;
+delete from Verse;
+delete from Word;
+delete from Concordance;
+delete from Phrase;
+
+
+BOOK FILLED BY HAND!!!
+
+python scrape_verses.py  # fill out verses table
+python scrape_base_concord.py   # fill out concordance table
+python scrape_native.py  # fill out natives in concordance table
+python scrape_description.py  # supplement concordance descriptions
+python scrape_interlinear.py  # fill hypertext for verses
+python scrape_word_detail.py  # fill word details like synonyms and defs for english
+
+
+python populate_concord_keyword.py  # fill out the concord keyword
+python populate_phrase_table.py  # fill the phrase table

@@ -4,6 +4,8 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
         <script type="text/javascript" src="anime.min.js"></script>
         <script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+        <script type="text/javascript" src="jquery-ui-1.12.1.min.js"></script>
+        <script type="text/javascript" src="jquery.ui.touch-punch.min.js"></script>
         <script type="text/javascript" src="Chart.min.js"></script>
         <meta name='viewport' content='width=device-width, initial-scale=0.66, maximum-scale=1.25' />
         <style>
@@ -94,7 +96,6 @@
                     padding-bottom: 3px;
                     padding-left: 5px;
                     padding-right: 5px;
-                    cursor: pointer;
                     cursor: hand;
                     border-radius: 30px;
                 }
@@ -152,6 +153,7 @@
                     background-color: white;
                     display: none;
                     opacity: 0;
+                    line-height: 1.5;
                 }
                 #sel_list {
                     width: 67%;
@@ -160,6 +162,68 @@
                     height: auto;
                     margin: auto;
                 }
+                #tab_list {
+                    width: 67%;
+                    min-width: 600px;
+                    max-width: 1000px;
+                    overflow-x: hidden;
+                    margin: auto;
+                    display: flex;
+                }
+                .tab_item {
+                    font-family: 'Lato', sans-serif;
+                    color: darkgrey;
+                    border-bottom: 7px solid rgba(139, 0, 0, .2);
+                    margin-bottom: 2px;
+                    padding-right: 5px;
+                    font-size: 13px;
+                    white-space: nowrap;
+                }
+
+                .tab_item:hover {
+                    color: black;
+                    border-bottom: 7px solid rgba(139, 0, 0, .5);
+                    font-weight: 700;
+                    cursor: hand;
+                    font-style: italic;
+                }
+
+                .tab_item_selected {
+                    border-bottom: 7px solid rgb(139, 0, 0);
+                    color: black;
+                    font-weight: 700;
+                }
+
+                #tab_scrub_holder {
+                    width: 67%;
+                    min-width: 600px;
+                    max-width: 1000px;
+                    overflow-x: hidden;
+                    margin: auto;
+                    margin-bottom: 4px;
+                }
+
+                #tab_scrubber {
+                    position: relative;
+                    border: 3px solid darkred;
+                    border-radius: 0px 0px 25px 25px;
+                    left: 0px;
+                    top: 0px;
+                    background-color: darkred;
+                    height: 20px;
+                    width: fit-content;
+                    padding-left: 12px;
+                    padding-right: 12px;
+                    padding-bottom: 12px;
+                    line-height: 1.4;
+                    color: white;
+                    font-family: Lato, sans-serif;
+                    font-weight: 900;
+                    font-size: large;
+                    font-variant-caps: all-petite-caps;
+                    cursor: hand;
+                }
+
                 .search_res {
                     height: fit-content;
                     min-height: 77px;
@@ -168,7 +232,6 @@
                     box-sizing: border-box;
                     margin-bottom: 8px;
                     display: flex;
-                    cursor: pointer;
                     cursor: hand;
                 }
                 .search_res:hover {
@@ -235,7 +298,6 @@
                     text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
                 }
                 .clicked-word:hover {
-                    cursor: pointer;
                     cursor: hand;
                 }
                 .kw {
@@ -243,7 +305,6 @@
                     color: darkgrey;
                 }
                 .kw:hover {
-                    cursor: pointer;
                     cursor: hand;
                     font-style: italic;
                 }
@@ -304,8 +365,7 @@
                 .hint_hover {
                     background: linear-gradient(to right,rgb(220, 190, 190), rgb(255, 245, 245));
                     border: darkred 2px solid;
-                    cursor: pointer;
-                    cursor: hand;
+                    cursor: all-scroll;
                 }
                 .hint:hover .hint_title {
                     color: darkred;
@@ -315,6 +375,10 @@
                 }
                 .hint:hover .hint-delete {
                     color: darkred;
+                    cursor: hand;
+                }
+                .hint_text {
+                    user-select: none;
                 }
                 .hint_title {
                     font-size: large;
@@ -338,34 +402,38 @@
                     border: 1px solid;
                     color: rgba(194, 150, 150, 0.85);
                     border-radius: 30px;
-                    font-size: 19;
+                    font-size: 15;
                     padding-top: 8px;
                     margin-left: 5px;
                     text-align: center;
                     width: 40px;
                     height: 30px;
                     margin-top: 4px;
+                    line-height: 1.4;
                 }
                 .hint_option_icon_inactive:hover {
                     color: darkred;
                     background-color: white;
+                    cursor: hand;
                 }
                 .hint_option_icon_active {
                     border: 1px solid;
                     background-color: rgba(194, 150, 150, 0.85);
                     color: rgba(255, 255, 255, 0.85);
                     border-radius: 30px;
-                    font-size: 19;
+                    font-size: 15;
                     padding-top: 8px;
                     margin-left: 5px;
                     text-align: center;
                     width: 40px;
                     height: 30px;
                     margin-top: 4px;
+                    line-height: 1.4;
                 }
                 .hint_option_icon_active:hover {
                     color: darkred;
                     background-color: white;
+                    cursor: hand;
                 }
                 .side-hint {
                     border-radius: 0px 30px 30px 0px;
@@ -379,13 +447,12 @@
                     border-left: rgba(0,0,0,0);
                     z-index: 1;
                     display: flex;
+                    cursor: all-scroll;
                 }
                 .side-hint:hover {
                     background: linear-gradient(to right,rgb(220, 190, 190), rgb(255, 245, 245));
                     border: darkred 2px solid;
                     box-shadow: darkgrey -3px 1px 6px;
-                    cursor: pointer;
-                    cursor: hand;
                 }
                 .side-hint:hover .hint_title {
                     color: darkred;
@@ -395,6 +462,7 @@
                 }
                 .side-hint:hover .hint-delete {
                     color: darkred;
+                    cursor: hand;
                 }
                 .hint-delete {
                     margin-top: 15px;
@@ -471,6 +539,7 @@
                     pointer-events: auto;
                     border-width: 2px 1px 2px 2px;
                     font-size: 17;
+                    user-select: none;
                 }
 
                 .left-concept:hover {
@@ -478,7 +547,6 @@
                     border: darkred 2px solid;
                     box-shadow: darkgrey 3px 1px 3px;
                     color: darkred;
-                    cursor: pointer;
                     cursor: hand;
                     font-style: italic;
                 }
@@ -493,6 +561,7 @@
                     background-color: rgba(250, 240, 230, 0.3);
                     pointer-events: auto;
                     border-width: 2px 2px 2px 1px;
+                    user-select: none;
                 }
 
                 .right-concept:hover {
@@ -500,7 +569,6 @@
                     border: darkred 2px solid;
                     box-shadow: darkgrey 3px 1px 3px;
                     color: darkred;
-                    cursor: pointer;
                     cursor: hand;
                     font-style: italic;
                 }
@@ -525,26 +593,22 @@
 
                 .add-concept-icon {
                     font-size: 25;
-                    line-height: 1.8;
+                    margin: auto;
                     padding-left: 10px;
                     color: darkred;
+                    line-height: 1.9;
                 }
 
-                .hint-scroll-arrow {
-                    margin-top: auto;
-                    margin-bottom: auto;
+                .add-concept-icon:hover {
+                    cursor: hand;
                 }
 
-                .hint-arrow {
-                    font-size: 50;
-                    color: grey;
-                    padding-left: 7px;
-                    padding-right: 7px;
-                }
-
-                .hint-arrow:hover {
-                    font-size: 54;
-                    color: darkred;
+                #scrubber {
+                    width: 9%;
+                    border: 5px solid darkred;
+                    border-radius: 0px 0px 7px 7px;
+                    margin-left: 30px;
+                    margin-right: 30px;
                 }
 
                 #search_rooster {
@@ -569,9 +633,35 @@
                     background-color: rgb(255, 250, 243);
                     color: darkred;
                     font-weight: 800;
-                    cursor: pointer;
                     cursor: hand;
                     border-color: lightgrey;
+                }
+
+                #page_list {
+                    width: 67%;
+                    min-width: 600px;
+                    max-width: 1000px;
+                    height: auto;
+                    margin: auto;
+                    display: flex;
+                }
+
+                .page_item {
+                    font-family: 'Lato', sans-serif;
+                    color: darkgrey;
+                    border-top: 7px solid rgba(139, 0, 0, .2);
+                    margin-top: 2px;
+                    padding-right: 5px;
+                    font-size: 13px;
+                    white-space: nowrap;
+                }
+
+                .page_item:hover {
+                    color: black;
+                    border-top: 7px solid rgba(139, 0, 0, .5);
+                    font-weight: 700;
+                    cursor: hand;
+                    font-style: italic;
                 }
 
         </style>
@@ -593,14 +683,13 @@
         </div>
         <div id="search_outer">
             <div id="search_container">
-                <div id="hint-arr-left" class="hint-scroll-arrow"><i class="fas fa-chevron-left hint-arrow"></i></div>
                 <div id="breadcrumb"></div>
                 <input type="search" id="question" placeholder="You have questions, the Bible has answers..." autofocus="" maxlength="90" />
-                <div id="hint-arr-right" class="hint-scroll-arrow"><i class="fas fa-chevron-right hint-arrow"></i></div>
                 <div id="search_icon_holder">
                     <i class="fa fa-circle-thinner fa-search" id="search_btn"></i>
                 </div>
             </div>
+            <div id="scrubber"></div>
             <div id="search_rooster">View Search Results</div>
         </div>
         <div id="options">
@@ -609,7 +698,10 @@
             <div id="chart2" class="chart_item"></div>
             <div id="chart3" class="chart_item"></div>
         </div>
+        <div id="tab_list"></div>
+        <div id="tab_scrub_holder"><div id="tab_scrubber"></div></div>
         <div id="sel_list"></div>
+        <div id="page_list"></div>
         <div id="footer" style="height:100px"></div>
 
         <script>
@@ -728,7 +820,7 @@
                 }
 
                 $( "#breadcrumb" ).hide();
-                $( "#hint-scroll-arrow" ).hide();
+                $( "#scrubber" ).hide();
                 $( "#question" ).val("").css("color", "grey").show().focus();
                 setCaretPosition(0);
             }
@@ -741,10 +833,156 @@
                                   .addClass('fas').addClass('fa-plus-circle');
                 $( "#breadcrumb" ).show();
 
-                searcher.refreshHintArrowVisibility();
+                searcher.refreshScrubberVisibility();
             }
 
-            searcher.refreshHintArrowVisibility = function()
+            searcher.submitHintList = function(page_num)
+            {
+                page_num = page_num ? page_num : 0;
+
+                var book_name = 'All';
+                if($( "#tab_list" ).is(":visible"))
+                {
+                    var tab_elem = $('.tab_item_selected');
+                    if(tab_elem && tab_elem.text() != "")
+                    {
+                        book_name = tab_elem.text();
+                    }
+                }
+
+                updateResultList([], false);
+                $("html, body").animate({ scrollTop: 0 }, "slow");
+
+                // re-run the search to update the list of items shown
+                $.ajax({
+                    url:"../search?book="+book_name+"&page="+page_num,
+                    type:"POST",
+                    data:JSON.stringify(hint_list),
+                    contentType:"application/json; charset=utf-8",
+                }).done(function(out, textStatus)
+                {
+                    renderResult(false, out, textStatus, book_name, page_num);
+                });
+            }
+
+            searcher.refreshPageSize = function()
+            {
+                if(searcher.pageUpdateTimerId != undefined)
+                {
+                    clearInterval(searcher.pageUpdateTimerId);
+                    searcher.pageUpdateTimerId = undefined;
+                }
+
+                $( "#page_list" ).html("");
+                if(searcher.curr_page >= 0)
+                {
+                    if(searcher.curr_page > 0)
+                    {
+                        $( "#page_list" ).append("<div class='page_item' id='prev_page'"+
+                                                 " style='width: 20%'>Previous Page</div>");
+                        if(searcher.has_next_page)
+                        {
+                            $( "#page_list" ).append("<div class='page_item' id='prev_page'"+
+                                                     " style='width: 60%'></div>");
+                            $( "#page_list" ).append("<div class='page_item' id='next_page'"+
+                                                     " style='width: 20%; text-align: right;'>Next Page</div>");
+                        }
+                        else
+                        {
+                            $( "#page_list" ).append("<div class='page_item'"+
+                                                     " style='width: 80%'></div>");
+                        }
+                    }
+                    else
+                    {
+                        if(searcher.has_next_page)
+                        {
+                            $( "#page_list" ).append("<div class='page_item'"+
+                                                     " style='width: 80%'></div>");
+                            $( "#page_list" ).append("<div class='page_item' id='next_page'"+
+                                                     " style='width: 20%; text-align: right;'>Next Page</div>");
+                        }
+                    }
+
+                    $( "#next_page" ).off('click').click(
+                        function(evt)
+                        {
+                            searcher.submitHintList(searcher.curr_page+1);
+                        });
+
+                    $( "#prev_page" ).off('click').click(
+                        function(evt)
+                        {
+                            searcher.submitHintList(searcher.curr_page-1);
+                        });
+                }
+            }
+
+            searcher.refreshTabSize = function()
+            {
+                if(searcher.tabUpdateTimerId != undefined)
+                {
+                    clearInterval(searcher.tabUpdateTimerId);
+                    searcher.tabUpdateTimerId = undefined;
+                }
+
+                $( "#tab_list" ).html("");
+                $( "#tab_scrubber" ).hide();
+
+                if(searcher.tabList)
+                {
+                    var minCount = -1;
+                    var total = 0;
+                    for(var k = 0; k < searcher.tabList.length; k++ )
+                    {
+                        if(minCount < 0 || searcher.tabList[k].count < minCount)
+                        {
+                            minCount = searcher.tabList[k].count;
+                        }
+                        total += searcher.tabList[k].count;
+                    }
+
+                    var allClass = (searcher.curr_book == undefined ||
+                                    searcher.curr_book == 'All') ?
+                                        'tab_item tab_item_selected' : 'tab_item';
+                    $( "#tab_list" ).append("<div class='"+allClass+
+                        "' style='width: 50px'>All</div>");
+
+
+                    for(var k = 0; k < searcher.tabList.length; k++ )
+                    {
+                        var w = Math.max((searcher.tabList[k].count / total) *
+                                         $("#sel_list").width(), 85);
+                        var thisClass = (searcher.curr_book == searcher.tabList[k].name ?
+                                         'tab_item tab_item_selected' : 'tab_item');
+                        $( "#tab_list" ).append("<div class='"+thisClass+
+                            "' style='width: "+w+"px'>"+searcher.tabList[k].name+"</div>");
+                    }
+
+                    $( "#tab_scrubber" ).text(searcher.tabList.length+ " books");
+                    $( ".tab_item" ).off('click').click(
+                        function(evt)
+                        {
+                            var elem = $( this );
+                            elem.siblings().removeClass('tab_item_selected')
+                            elem.toggleClass('tab_item_selected');
+
+                            searcher.submitHintList();
+                        });
+
+                    var totalWidth = 0;
+                    $( ".tab_item" ).each(function( index ) {
+                        totalWidth += $( this ).outerWidth();
+                    });
+
+                    if(totalWidth > $( "#tab_list" ).width())
+                    {
+                        $( "#tab_scrubber" ).show();
+                    }
+                }
+            }
+
+            searcher.refreshScrubberVisibility = function()
             {
                 if(searcher.hintUpdateTimerId != undefined)
                 {
@@ -757,8 +995,8 @@
                 {
                     // check if arrows are needed
                     if(($("#search_container").width() -
-                        $("#search_icon_holder").width()) <
-                        ((hint_list.length * 200) + 27))
+                        $("#search_icon_holder").width() - 40) <
+                        $("#breadcrumb").width())
                     {
                         isShown = true;
                     }
@@ -766,14 +1004,36 @@
 
                 if(isShown)
                 {
-                    $("#hint-arr-left").show();
-                    $("#hint-arr-right").show();
+                    $("#scrubber").show();
                 }
                 else
                 {
-                    $("#hint-arr-left").hide();
-                    $("#hint-arr-right").hide();
+                    $("#scrubber").css("left", 0).hide();
                     $( "#breadcrumb" ).scrollLeft(0);
+                }
+
+                isShown = false;
+                if($( "#tab_list" ).is(":visible"))
+                {
+                    var totalWidth = 0;
+                    $( ".tab_item" ).each(function( index ) {
+                        totalWidth += $( this ).width();
+                    });
+
+                    if(totalWidth > $( "#tab_list" ).width())
+                    {
+                        isShown = true;
+                    }
+                }
+
+                if(isShown)
+                {
+                    $("#tab_scrubber").show();
+                }
+                else
+                {
+                    $("#tab_scrubber").css("left", 0).hide();
+                    $( "#tab_list" ).scrollLeft(0);
                 }
             }
 
@@ -782,18 +1042,29 @@
                 if(isEnglish)
                 {
                     hint_list.push({english: meta_search, native: undefined});
-                    $( "#breadcrumb" ).append(
-                        "<div class='hint-container'><div class='hint'>"+
-                        "<i class='far fa-times-circle hint-delete'></i>"+
-                        "<div class='hint_text'>"+
-                        "<div class='hint_title'>"+title+"</div>"+
-                        "<div class='hint_desc'>"+desc+"</div></div>"+
-                        "<i class='hint_option_icon_inactive fas fa-sitemap'></i>"+
-                        "<i class='hint_option_icon_inactive fas fa-code-branch'></i>"+
-                        "</div>"+
-                        "<div class='side-hint'>"+
-                        "<i class='add-concept-icon fas fa-plus-circle'>"+
-                        "</i></div></div>");
+                    html_str = ("<div class='hint-container'><div class='hint'>"+
+                                "<i class='far fa-times-circle hint-delete'></i>"+
+                                "<div class='hint_text'>"+
+                                "<div class='hint_title'>"+title+"</div>"+
+                                "<div class='hint_desc'>"+desc+"</div></div>");
+
+                    if(meta_search.words[0].indexOf(' ') < 0)
+                    {
+                        html_str += ("<div class='hint_option_icon_inactive "+
+                                     "hint_medaffinity'>etc</div>" +
+                                     "<div class='hint_option_icon_inactive "+
+                                     "hint_highaffinity'>alt</div>");
+                    }
+
+                    html_str += ("</div>"+
+                                 "<div class='side-hint'>"+
+                                 "<i class='add-concept-icon fas fa-plus-circle'>"+
+                                 "</i></div></div>");
+
+                    $( "#breadcrumb" ).append(html_str);
+
+                    // new hints mean that new events should be registered
+                    refreshHintEvents();
                 }
                 else
                 {
@@ -803,154 +1074,17 @@
                         "<i class='add-concept-icon fas fa-plus-circle'>"+
                         "</i></div>"+
                         "<div class='side-hint'>"+
-                        "<div class='hint_text'>"+
+                        "<div class='hint_text' style='padding-right: 5px'>"+
                         "<div class='hint_title'>"+title+"</div>"+
                         "<div class='hint_desc'>"+desc+"</div></div>"+
-                        "<i class='far fa-times-circle hint-delete'></i></div></div>");
+                        "<i class='far fa-times-circle hint-delete'></i>"+
+                        "</div></div>");
+
+                    // new hints mean that new events should be registered
+                    refreshSideHintEvents();
                 }
 
                 enableHintView();
-
-                $( ".hint" ).off('mouseenter').on('mouseenter',
-                    function(evt)
-                    {
-                        $(this).addClass('hint_hover');
-                    });
-
-                $( ".hint" ).off('mouseleave').on('mouseleave',
-                    function(evt)
-                    {
-                        $(this).removeClass('hint_hover');
-                    });
-
-
-                $(".fa-sitemap").off('click touchend').on('click touchend',
-                    function(evt)
-                    {
-                        if(evt.type == "touch")
-                        {
-                            $(this).parent(".hint").removeClass('hint_hover');
-                        }
-
-                        changeExtra('synonym', $(this));
-                        return false;
-                    });
-
-                $(".fa-code-branch").off('click touchend').on('click touchend',
-                    function(evt)
-                    {
-                        if(evt.type == "touch")
-                        {
-                            $(this).parent(".hint").removeClass('hint_hover');
-                        }
-
-                        changeExtra('similar', $(this));
-                        return false;
-                    });
-
-                $( ".hint" ).off('click').click(
-                    function(evt)
-                    {
-                        var idx = $( ".hint" ).index(this);
-                        if(hint_list[idx].english == undefined)
-                        {
-                            pending_hint_elem = $(this);
-                            pending_hint = hint_list[idx];
-                            $.ajax({
-                                url: "../baseless-search?concord="+
-                                    encodeURIComponent(
-                                        hint_list[idx].native.concords[0])
-                            }).done(function(out, textStatus)
-                            {
-                                onBaselessSuccess(out, textStatus,
-                                                  "english", hint_list[idx]);
-
-                            }).fail(function()
-                            {
-                                // todo
-                            });
-                        }
-                        else if(hint_list[idx].native != undefined)
-                        {
-                            hint_list[idx].english = undefined;
-                            $(this).html("<i class='"+
-                                "add-concept-icon fas fa-plus-circle'>"+
-                                "</i>");
-                            $.ajax({
-                                    url:"../search",
-                                    type:"POST",
-                                    data:JSON.stringify(hint_list),
-                                    contentType:"application/json; charset=utf-8",
-                                }).done(function(out, textStatus)
-                                {
-                                    if(out)
-                                    {
-                                        updateResultList(
-                                            out.data, false,
-                                            out.highlight_verse,
-                                            out.stats);
-                                    }
-                                    else
-                                    {
-                                        updateResultList([], false);
-                                    }
-                                });
-                        }
-                        else
-                        {
-                            removeHintByIndex(idx);
-                        }
-                    }
-                );
-
-                $( ".side-hint" ).off('click').click(
-                    function(evt)
-                    {
-                        var idx = $( ".side-hint" ).index(this);
-                        if(hint_list[idx].native == undefined)
-                        {
-                            evt.preventDefault();
-                            addNativeSelection(idx);
-                        }
-                        else if(hint_list[idx].english != undefined)
-                        {
-                            hint_list[idx].native = undefined;
-                            $(this).html("<i class='"+
-                                "add-concept-icon fas fa-plus-circle'></i>");
-
-                            if(hint_list.length == 1)
-                            {
-                                addNativeSelection(idx);
-                            }
-                            else
-                            {
-                                $.ajax({
-                                    url:"../search",
-                                    type:"POST",
-                                    data:JSON.stringify(hint_list),
-                                    contentType:"application/json; charset=utf-8",
-                                }).done(function(out, textStatus)
-                                {
-                                    if(out)
-                                    {
-                                        updateResultList(
-                                            out.data, false,
-                                            out.highlight_verse,
-                                            out.stats);
-                                    }
-                                    else
-                                    {
-                                        updateResultList([], false);
-                                    }
-                                });
-                            }
-                        }
-                        else
-                        {
-                            removeHintByIndex(idx);
-                        }
-                    }
-                );
             }
 
             function removeHintByIndex(idx)
@@ -958,7 +1092,8 @@
                 $( "#word-info" ).hide();
                 $( ".hint-container" ).eq(idx).remove();
                 hint_list.splice(idx, 1);
-                searcher.refreshHintArrowVisibility();
+                searcher.refreshScrubberVisibility();
+
                 if(hint_list.length <= 0)
                 {
                     updateResultList([], false);
@@ -966,26 +1101,7 @@
                 }
                 else
                 {
-                    // re-run the search to update the list of items shown
-                    $.ajax({
-                        url:"../search",
-                        type:"POST",
-                        data:JSON.stringify(hint_list),
-                        contentType:"application/json; charset=utf-8",
-                    }).done(function(out, textStatus)
-                    {
-                        if(out)
-                        {
-                            updateResultList(
-                                out.data, false,
-                                out.highlight_verse,
-                                out.stats);
-                        }
-                        else
-                        {
-                            updateResultList([], false);
-                        }
-                    });
+                    searcher.submitHintList();
                 }
             }
 
@@ -1014,45 +1130,20 @@
                     buildBaselessQueryString(idx)}).done(
                         function(out, textStatus)
                         {
-                            onBaselessSuccess(
-                                out, textStatus, "native", hint_list[idx]);
-                        }).fail(function()
-                        {
-                            // todo
+                            renderResult(true, out, textStatus);
                         });
             }
 
             function addToSearch(title, desc, meta_search, isEnglish)
             {
                 addHint(title, desc, meta_search, isEnglish);
-
-                // refresh search
-                $.ajax({
-                    url:"../search",
-                    type:"POST",
-                    data:JSON.stringify(hint_list),
-                    contentType:"application/json; charset=utf-8",
-                }).done(function(out, textStatus)
-                {
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-
-                    if(out)
-                    {
-                        $( "#word-info" ).hide();
-                        updateResultList(out.data, false,
-                                         out.highlight_verse,
-                                         out.stats);
-                    }
-                    else
-                    {
-                        updateResultList([], false);
-                    }
-                });
+                searcher.submitHintList();
             }
 
             function changeExtra(extra_type, elem)
             {
                 var idx = $( ".hint" ).index(elem.parent(".hint"));
+                console.log("hint idx:"+idx)
                 if(hint_list[idx].english[extra_type] == true)
                 {
                     hint_list[idx].english[extra_type] = false;
@@ -1064,28 +1155,7 @@
                     elem.removeClass('hint_option_icon_inactive').addClass('hint_option_icon_active');
                 }
 
-                // refresh search
-                $.ajax({
-                    url:"../search",
-                    type:"POST",
-                    data:JSON.stringify(hint_list),
-                    contentType:"application/json; charset=utf-8",
-                }).done(function(out, textStatus)
-                {
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-
-                    if(out)
-                    {
-                        $( "#word-info" ).hide();
-                        updateResultList(out.data, false,
-                                         out.highlight_verse,
-                                         out.stats);
-                    }
-                    else
-                    {
-                        updateResultList([], false);
-                    }
-                });
+                searcher.submitHintList();
             }
 
             function addKeyWordClick()
@@ -1146,11 +1216,19 @@
                 );
             }
 
-            function updateResultList(items, isBaseless, highlight_verse, stats)
+            function updateResultList(items, isBaseless, highlight_verse, stats, curr_book, curr_page, has_next_page)
             {
                 $( "#sel_list" ).html("");
+                $( "#tab_list" ).html("");
+                $( "#tab_scrubber" ).hide();
+                $( "#tab_list" ).scrollLeft(0);
+                searcher.tabList = [];
+                searcher.curr_page = curr_page ? curr_page : 0;
+                searcher.has_next_page = has_next_page ? has_next_page : false;
+                searcher.refreshPageSize();
 
                 var hasSetMainVerse = false;
+                var hasSetTabList = false;
                 if(highlight_verse != undefined)
                 {
                     info = highlight_verse
@@ -1204,6 +1282,29 @@
                             $( "#chapter_verse" ).html(info.chapter+
                                                    ":"+info.verse);
         	                $( "#main_verse" ).html(info.text);
+                        }
+
+                        if(!hasSetTabList)
+                        {
+                            hasSetTabList = true;
+                            for(var j = 0; j < stats.length; j++)
+                            {
+                                if(stats[j].type == 'tabs')
+                                {
+                                    var minCount = -1;
+                                    var total = 0;
+                                    for(var k = 0; k < stats[j].data.length; k++ )
+                                    {
+                                        if(stats[j].type == 'tabs')
+                                        {
+                                            searcher.tabList = stats[j].data;
+                                            searcher.curr_book = curr_book;
+                                            searcher.refreshTabSize();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         $( "#sel_list" ).append(
@@ -1266,6 +1367,8 @@
                                 "</div><i class='far fa-times-circle hint-delete'></i>");
                         }
 
+                        refreshSideHintEvents();
+
                         pending_hint_elem = undefined;
                         pending_hint = undefined;
                     }
@@ -1283,27 +1386,7 @@
                         }
                     }
 
-                    $.ajax({
-                        url:"../search",
-                        type:"POST",
-                        data:JSON.stringify(hint_list),
-                        contentType:"application/json; charset=utf-8",
-                    }).done(function(out, textStatus)
-                    {
-                        $("html, body").animate({ scrollTop: 0 }, "slow");
-
-                        if(out)
-                        {
-                            $( "#word-info" ).hide();
-                            updateResultList(out.data, false,
-                                             out.highlight_verse,
-                                             out.stats);
-                        }
-                        else
-                        {
-                            updateResultList([], false);
-                        }
-                    });
+                    searcher.submitHintList();
                 }
                 else
                 {
@@ -1332,7 +1415,127 @@
                 }
             }
 
-            function onBaselessSuccess(out, textStatus, type, related_hint)
+            function refreshHintEvents()
+            {
+                $( ".hint" ).off('mouseenter').on('mouseenter',
+                    function(evt)
+                    {
+                        $(this).addClass('hint_hover');
+                    });
+
+                $( ".hint" ).off('mouseleave').on('mouseleave',
+                    function(evt)
+                    {
+                        $(this).removeClass('hint_hover');
+                    });
+
+
+                $(".hint_medaffinity").off('click').click(
+                    function(evt)
+                    {
+                        changeExtra('synonym', $(this));
+                        return false;
+                    });
+
+                $(".hint_highaffinity").off('click').click(
+                    function(evt)
+                    {
+                        changeExtra('similar', $(this));
+                        return false;
+                    });
+
+                $( ".hint" ).find(".hint-delete").off('click').click(
+                    function(evt)
+                    {
+                        var thisHint = $(this).parent();
+                        var idx = $( ".hint" ).index(thisHint);
+                        if(hint_list[idx].english == undefined)
+                        {
+                            pending_hint_elem = thisHint;
+                            pending_hint = hint_list[idx];
+                            $.ajax({
+                                url: "../baseless-search?concord="+
+                                    encodeURIComponent(
+                                        hint_list[idx].native.concords[0])
+                            }).done(function(out, textStatus)
+                            {
+                                renderResult(true, out, textStatus);
+
+                            });
+                        }
+                        else if(hint_list[idx].native != undefined)
+                        {
+                            hint_list[idx].english = undefined;
+                            thisHint.html("<i class='"+
+                                "add-concept-icon fas fa-plus-circle'>"+
+                                "</i>");
+                            searcher.submitHintList();
+                        }
+                        else
+                        {
+                            removeHintByIndex(idx);
+                        }
+                    }
+                );
+            }
+
+            function refreshSideHintEvents()
+            {
+                $( ".side-hint" ).find(".hint-delete").off('click').click(
+                    function(evt)
+                    {
+                        var thisHint = $(this).parent();
+                        var idx = $( ".side-hint" ).index(thisHint);
+                        if(hint_list[idx].english != undefined)
+                        {
+                            hint_list[idx].native = undefined;
+                            thisHint.html("<i class='"+
+                                "add-concept-icon fas fa-plus-circle'></i>");
+
+                            thisHint.find(".add-concept-icon").off('click').click(
+                                function(evt)
+                                {
+                                    var thisHint = $(this).parent();
+                                    var idx = $( ".side-hint" ).index(thisHint);
+                                    if(hint_list[idx].native == undefined)
+                                    {
+                                        evt.preventDefault();
+                                        addNativeSelection(idx);
+                                    }
+                                }
+                            );
+
+                            if(hint_list.length == 1)
+                            {
+                                addNativeSelection(idx);
+                            }
+                            else
+                            {
+                                searcher.submitHintList();
+                            }
+                        }
+                        else
+                        {
+                            removeHintByIndex(idx);
+                        }
+                    }
+                );
+
+                $( ".side-hint" ).find(".add-concept-icon").off('click').click(
+                    function(evt)
+                    {
+                        var thisHint = $(this).parent();
+                        var idx = $( ".side-hint" ).index(thisHint);
+                        if(hint_list[idx].native == undefined)
+                        {
+                            evt.preventDefault();
+                            addNativeSelection(idx);
+                        }
+                    }
+                );
+            }
+
+            function renderResult(isBaseless, out, textStatus, curr_book, curr_page)
             {
                 $( "#sel_list" ).html("");
                 if (typeof window.orientation === 'undefined')
@@ -1340,15 +1543,25 @@
                     $('#question').focus();
                 }
 
-                if(textStatus == "success")
+                if(textStatus == "success" && out.data && out.data.length > 0)
                 {
+                    if(isBaseless)
+                    {
+                        // some baseless searches don't return verses, so we will account for that now
+                        isBaseless = out.data[0].book == undefined;
+                    }
+
                     $( "#word-info" ).hide();
-                    updateResultList(out.data, true,
+                    updateResultList(out.data, isBaseless,
                                      out.highlight_verse,
-                                     out.stats);
+                                     out.stats, curr_book,
+                                     curr_page,
+                                     out.next_page);
                 }
                 else
                 {
+                    $( "#tab_list" ).html("");
+                    $( "#tab_scrubber").hide();
                     $( '#error' ).css("display", "block");
 
                     var basicTimeline = anime.timeline();
@@ -1382,6 +1595,8 @@
                 $( '#question' ).blur();
 
                 result_list = [];
+                $( "#sel_list" ).html("");
+
                 $.ajax({
                     url: "../baseless-search?text="+encodeURIComponent(q)
                 }).done(function(out, textStatus)
@@ -1394,12 +1609,10 @@
                         pending_hint_elem = $( ".side-hint" ).eq(idx);
                         $( '#question' ).val("");
                     }
-                    onBaselessSuccess(out, textStatus, "native");
+                    renderResult(true, out, textStatus);
 
                 }).fail(function()
                 {
-                    $( "#sel_list" ).html("");
-
                     if (typeof window.orientation === 'undefined')
                     {
                         $('#question').focus();
@@ -1478,39 +1691,9 @@
                 }
             });
 
-            $( "#hint-arr-left" ).click(function()
-            {
-                $( "#breadcrumb" ).scrollLeft($( "#breadcrumb" ).scrollLeft() - 20);
-            });
-
-            $( "#hint-arr-right" ).click(function()
-            {
-                $( "#breadcrumb" ).scrollLeft($( "#breadcrumb" ).scrollLeft() + 20);
-            });
-
             $( "#search_rooster" ).click(function()
             {
-                $.ajax({
-                        url:"../search",
-                        type:"POST",
-                        data:JSON.stringify(hint_list),
-                        contentType:"application/json; charset=utf-8",
-                    }).done(function(out, textStatus)
-                    {
-                        $("html, body").animate({ scrollTop: 0 }, "slow");
-
-                        if(out)
-                        {
-                            $( "#word-info" ).hide();
-                            updateResultList(out.data, false,
-                                             out.highlight_verse,
-                                             out.stats);
-                        }
-                        else
-                        {
-                            updateResultList([], false);
-                        }
-                    });
+                searcher.submitHintList();
             })
 
             $( window ).resize(function()
@@ -1522,8 +1705,24 @@
                     clearInterval(searcher.hintUpdateTimerId);
                 }
 
+                if(searcher.tabUpdateTimerId != undefined)
+                {
+                    clearInterval(searcher.tabUpdateTimerId);
+                }
+
+                if(searcher.pageUpdateTimerId != undefined)
+                {
+                    clearInterval(searcher.pageUpdateTimerId);
+                }
+
                 searcher.hintUpdateTimerId = setInterval(
-                    searcher.refreshHintArrowVisibility, 750);
+                    searcher.refreshScrubberVisibility, 750);
+
+                searcher.tabUpdateTimerId = setInterval(
+                    searcher.refreshTabSize, 750);
+
+                searcher.pageUpdateTimerId = setInterval(
+                    searcher.refreshPageSize, 750);
             });
 
             // Callback that creates and populates a data table,
@@ -1628,8 +1827,49 @@
 
             $( "#word-info" ).hide();
             $( "#breadcrumb" ).hide();
-            $( "#hint-arr-left" ).hide();
-            $( "#hint-arr-right" ).hide();
+            $( "#scrubber" ).draggable(
+                {
+                    axis: "x",
+                    containment: "parent",
+                    drag: function( event, ui )
+                    {
+                        var totalWidth = 0;
+                        $( ".hint-container" ).each(function( index ) {
+                            totalWidth += $( this ).width();
+                        });
+
+                        var diff = Math.max((totalWidth - $("#breadcrumb").width()) * 1.6, 75);
+                        var perc = (ui.offset.left - $("#search_container").offset().left) / ($("#search_container").width() * 0.8);
+                        $( "#breadcrumb" ).scrollLeft(Math.max(0, Math.min(1, perc)) * diff);
+                    }
+                }
+            );
+            $( "#tab_scrubber" ).draggable(
+                {
+                    axis: "x",
+                    containment: "parent",
+                    drag: function( event, ui )
+                    {
+                        var totalWidth = 0;
+                        $( ".tab_item" ).each(function( index ) {
+                            totalWidth += $( this ).outerWidth();
+                        });
+
+                        var diff = totalWidth - $( "#tab_list" ).width();
+                        var offset = ui.offset.left - $("#tab_list").offset().left;
+                        var perc = offset / $("#tab_list").width();
+                        if(perc > 0.5)
+                        {
+                            perc = (offset + $("#tab_scrubber").outerWidth()) / $("#tab_list").width();
+                        }
+                        perc = Math.max(0, Math.min(1, perc));
+                        $( "#tab_list" ).scrollLeft(perc * diff);
+                    }
+                }
+            );
+
+            $( "#scrubber" ).hide();
+            $( "#tab_scrubber").hide();
 
             drawChart([]);  // todo: remove me
 

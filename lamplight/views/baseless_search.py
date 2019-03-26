@@ -75,23 +75,15 @@ class Baseless(object):
 
     @staticmethod
     def get_phrase(search_str, page, page_size):
+        criteria = [{'english': {'words': [search_str]}}]
+        cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
+        cursor_string, join_stmts, where_stmts = verse_helper.get_query_parts(
+            criteria, page, page_size,
+            False, 'All')
+        cursor.execute(cursor_string + join_stmts + where_stmts)
         data = []
         highlight = None
         has_next = False
-
-        cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("""SELECT Book.title, Verse.hypertext,
-                                 Verse.text, Verse.chapter, Verse.verse_num,
-                                 Verse.concord_set
-                          FROM Phrase
-                          JOIN PhraseVerseBridge Pvb ON Phrase.phrase_id = Pvb.phrase_id
-                          JOIN Verse ON Pvb.verse_hash = Verse.hash
-                          JOIN Book ON Verse.book_id = Book.book_id
-                          WHERE Phrase.phrase_ci = %s
-                          LIMIT %s
-                          OFFSET %s;""",
-                          (search_str, page_size+1, page*page_size))
-
         if cursor.rowcount:
             for idx in range(cursor.rowcount):
                 if idx >= page_size:
@@ -112,8 +104,13 @@ class Baseless(object):
                                     "lang": "english"
                                 })
 
+        cursor_string, join_stmts, where_stmts = verse_helper.get_query_parts(
+            criteria, page, page_size, True, 'All')
+        cursor.execute(cursor_string + join_stmts + where_stmts)
+        stats = verse_helper.get_stats(cursor)
         cursor.close()
-        return data, highlight, has_next
+
+        return data, highlight, stats, has_next
 
     @staticmethod
     def get_word(search_word, similar, synonym, page, page_size):
@@ -171,9 +168,13 @@ class Baseless(object):
 
         stats = []
         if cursor.rowcount:
+            stat_data = []
             for idx in range(cursor.rowcount):
                 row = cursor.fetchone()
-                stats.append({'key': row['lang'], 'value': row['total']})
+                stat_data.append({'key': row['lang'], 'value': row['total']})
+
+            if stat_data:
+                stats.append({'type': 'doughnut', 'data': stat_data})
 
         cursor.close()
         return data, highlight, stats, has_next
@@ -224,14 +225,14 @@ class Baseless(object):
 
             # phrase/question/statement search
             else:
-                data, highlight, next_page = Baseless.get_phrase(search_str, page, page_size)
+                data, highlight, stats, next_page = Baseless.get_phrase(search_str, page, page_size)
                 if data:
                     found_it = True
                     resp = Response(json.dumps(
                         {
                             "data": data,
                             "highlight_verse": highlight,
-                            "stats": [],
+                            "stats": stats,
                             "next_page": next_page
                         }))
 
