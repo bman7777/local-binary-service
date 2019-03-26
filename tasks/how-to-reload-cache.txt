@@ -1,0 +1,11 @@
+
+delete from WordConcordanceBridge;
+delete from WordVerseBridge;
+delete from ConcordanceVerseBridge;
+delete from PhraseVerseBridge;  # this is more independent than the others
+
+python populate_wordversebridge.py
+python populate_concordversebridge.py
+python populate_wordconcordbridge.py
+
+python populate_phraseversebridge.py  # if you are re-filling phrases
