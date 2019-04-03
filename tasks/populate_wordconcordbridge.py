@@ -1,19 +1,18 @@
 
 import json
 import os
-import pickle
 import MySQLdb
 
 
 def insert_mapping(db, db_row, run_cursor):
 
-    concord_info = pickle.loads(db_row['ordered_concord'])
+    concord_info = json.loads(db_row['ordered_concord'])
     word_id = str(db_row['word_id'])
     final_map = []
 
     # note: I'm assuming that the counts are already ascending
-    for concord, count in concord_info:
-        final_map.append({'concord_id':concord, 'match':True, 'similar':False, 'synonym':False})
+    for concord in concord_info:
+        final_map.append({'concord_id':concord['con'], 'match':True, 'similar':False, 'synonym':False})
 
     if db_row['details']:
         details = json.loads(db_row['details'])
@@ -24,17 +23,17 @@ def insert_mapping(db, db_row, run_cursor):
                         run_cursor.execute("""select ordered_concord from Word where word = %s;""", (syn,))
                         word_row = run_cursor.fetchone()
                         while word_row is not None:
-                            concord_info = pickle.loads(word_row["ordered_concord"])
-                            for concord, count in concord_info:
+                            concord_info = json.loads(word_row["ordered_concord"])
+                            for concord in concord_info:
                                 found_it = False
                                 for item in final_map:
-                                    if item['concord_id'] == concord:
+                                    if item['concord_id'] == concord['con']:
                                         item['synonym'] = True
                                         found_it = True
                                         break
 
                                 if not found_it:
-                                    final_map.append({'concord_id':concord, 'match':False, 'similar':False, 'synonym':True})
+                                    final_map.append({'concord_id':concord['con'], 'match':False, 'similar':False, 'synonym':True})
 
                             word_row = run_cursor.fetchone()
 
@@ -51,10 +50,15 @@ def insert_mapping(db, db_row, run_cursor):
             common_row = run_cursor.fetchone()
             most_common_book = common_row["book_id"] if common_row else 0
 
-            run_cursor.execute("""select count(*) as total
-                                  from ConcordanceVerseBridge Cvb
-                                  WHERE concord_id = %s;""",
-                                  (item['concord_id'],))
+            # Need to count number of words in this concord that actually match the word!!
+            run_cursor.execute("""SELECT count(distinct A.hash) as total FROM Verse A
+                                  JOIN ConcordanceVerseBridge Avb ON A.hash = Avb.verse_hash
+                                  JOIN Concordance Ac ON Ac.concord_id = Avb.concord_id
+                                  JOIN WordVerseBridge Awvb ON A.hash = Awvb.verse_hash
+                                  JOIN Word Aw ON Aw.word_id = Awvb.word_id
+                                  WHERE Ac.concord_id = %s AND Aw.word_id = %s
+                                        AND Awvb.is_match=1;""",
+                                  (item['concord_id'], word_id ))
             common_row = run_cursor.fetchone()
             num_verses = common_row["total"] if common_row else 0
 

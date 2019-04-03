@@ -8,4 +8,6 @@ python populate_wordversebridge.py
 python populate_concordversebridge.py
 python populate_wordconcordbridge.py
 
+# I haven't written a script for concordancewordbridge
+
 python populate_phraseversebridge.py  # if you are re-filling phrases
