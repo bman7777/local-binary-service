@@ -39,7 +39,7 @@ def test_standard(client, good_verse):
 
 
 @pytest.mark.parametrize("con", [
-        (23456, 200),
+        (22254, 200),
         (-1, 204),
     ])
 def test_concord_standard(client, con):

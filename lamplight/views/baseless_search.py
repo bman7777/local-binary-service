@@ -1,7 +1,7 @@
 import json
-import re
 import MySQLdb
 from urllib.parse import unquote
+import re
 
 from __init__ import app, db
 from utilities import verse_helper
@@ -187,13 +187,8 @@ class Baseless(object):
         found_it = False
         if search_str:
             # verse input
-            verse_match = re.match("[-.0-9]*[ ]*[a-zA-Z]+[ ]*[-.0-9]+\:[-.0-9]+",
-                                   search_str)
-
-            # check to see that we have a match and that the length is
-            # similar to the length of the input string ( this rules out
-            # matches like "What does John 3:16 mean?"
-            if verse_match and (len(verse_match.group()) + 4) > len(search_str):
+            verse_match = verse_helper.is_verse(search_str)
+            if verse_match:
                 verse_parts = verse_match.group().split(":")
                 book_match = re.match("[-.0-9]*[ ]*[a-zA-Z]+", verse_parts[0])
                 book = book_match.group()
@@ -252,29 +247,35 @@ class Baseless(object):
         word_cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
         data = []
         highlight = None
+        has_next = False
 
-        word_cursor.execute("""SELECT word_tree
-                              FROM Concordance WHERE concord_id=%s;""",
-                              (concord,))
+        word_cursor.execute("""SELECT Word.word, SUM(Cwb.num_verses), Book.title
+                               FROM ConcordanceWordBridge Cwb
+                               JOIN Word on Word.word_id = Cwb.word_id
+                               JOIN Book on Book.book_id = Cwb.book_id
+                               WHERE concord_id=%s GROUP BY (Cwb.word_id)
+                               ORDER BY MAX(Cwb.num_verses) DESC
+                               LIMIT %s
+                               OFFSET %s;""",
+                               (concord, page_size+1, page*page_size))
 
-        if word_cursor.rowcount:
-            tree = json.loads(word_cursor.fetchone()["word_tree"])
+        row = word_cursor.fetchone()
+        while row is not None:
+            if len(data) >= page_size:
+                has_next = True
+                break
 
-            for wd in tree:
-                vs_cursor = db.get().cursor(MySQLdb.cursors.DictCursor)
-                book_title = "Psalms"
-                #highest_book_cnt = 0
-                data.append({'type': 'category',
-                             'lang': 'english',
-                             'english': wd,
-                             'num_verse': 17,
-                             'common_book': book_title,
-                             'words': [wd]})
+            data.append({'type': 'category',
+                         'lang': 'english',
+                         'english': row['word'],
+                         'num_verse': int(row['SUM(Cwb.num_verses)']),
+                         'common_book': row['title'],
+                         'words': [row['word']]})
 
-                if book_title and not highlight:
-                    pass #highlight = verse_helper.get_highlight(row)
+            if row['title'] and not highlight:
+                pass #highlight = verse_helper.get_highlight(row)
 
-                vs_cursor.close()
+            row = word_cursor.fetchone()
 
         word_cursor.close()
         found_it = False
@@ -284,7 +285,8 @@ class Baseless(object):
                 {
                     "data": data,
                     "highlight_verse": highlight,
-                    "stats": []
+                    "stats": [],
+                    "next_page": has_next
                 } ))
 
         # we found nothing, so return nothing
